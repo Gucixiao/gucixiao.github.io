@@ -9,25 +9,41 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Harlowe_Test_ArnoldSimulator.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Harlowe_Test_ArnoldSimulator" startnode="1" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="771392AC-8D9E-4798-80F7-529A6CFAD7E5" options="" tags="" zoom="0.6" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="Title" tags="" position="500,100" size="100,100">(enchant:?passage,
+<tw-storydata name="Harlowe_Test_ArnoldSimulator" startnode="1" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="771392AC-8D9E-4798-80F7-529A6CFAD7E5" options="" tags="" zoom="0.6" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">* {
+  font-family: "sans-serif";
+  font-size: 18px
+}
+</style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-tag name="正在施工" color="red"></tw-tag><tw-tag name="startup" color="green"></tw-tag><tw-tag name="header" color="blue"></tw-tag><tw-tag name="footer" color="blue"></tw-tag><tw-tag name="sidebar" color="purple"></tw-tag><tw-passagedata pid="1" name="Title" tags="" position="500,100" size="100,100">&lt;!--标题界面的外观--&gt;
+(enchant:?passage,
 	(align:&quot;=&gt;&lt;=&quot;) +
 	(font:&quot;sans-serif&quot;) +
 	(background:transparent)
 )
+
 (enchant:?page,
-	(background:(gradient: 0, 0, #000000, 1, #191970))
+	(background:(gradient: 0, 0, #000000, 1, #00aec2))
 )
-(hide:?sidebar)
+
 
 (b4r:&quot;dotted&quot;,&quot;none&quot;)+(b4r-size:2,2)+(b4r-colour:white)[&lt;h1&gt;阿诺德模拟器&lt;/h1&gt;]
 
-(text-size:0.5)+(text-colour:grey)[v0.1a
+(text-size:0.5)[v0.1a
 by: 顾顾头]
 
-正在施工，请耐心等候</tw-passagedata><tw-passagedata pid="2" name="CSS" tags="" position="200,100" size="100,100">(enchant:?passage,
-	(font:&quot;sans-serif&quot;)
-)
-</tw-passagedata><tw-passagedata pid="3" name="未命名片段 1" tags="" position="575,225" size="100,100"></tw-passagedata></tw-storydata>
+正在施工，请耐心等候
+
+&lt;img src=&quot;img\阿诺德.jpg&quot;&gt;
+
+(b4r:&quot;double&quot;,&quot;none&quot;)+(b4r-colour:white)[[[开始游戏|Intro]]
+(b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[存档]
+(b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[成就]
+(b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[[设置|Settings]]]</tw-passagedata><tw-passagedata pid="2" name="Intro" tags="" position="500,225" size="100,100">&lt;!--初始化人物属性--&gt;
+(set:$health to 100)
+
+你是阿诺德。
+
+</tw-passagedata><tw-passagedata pid="3" name="Bedroom" tags="" position="500,350" size="100,100">你在自己的卧室里。</tw-passagedata><tw-passagedata pid="4" name="Sidebar" tags="" position="650,100" size="100,100"></tw-passagedata><tw-passagedata pid="5" name="Settings" tags="" position="100,100" size="100,100">&lt;h3&gt;游戏设置&lt;/h3&gt;
+</tw-passagedata></tw-storydata>
 <script title="Twine engine code" data-main="harlowe">(function(){"use strict";
 var require,define;!function(){var e={},r={};require=function(i){var n=e[i];return n&&(r[i]=n[1].apply(void 0,n[0].map(require)),e[i]=void 0),r[i]},(define=function(r,i,n){if("function"==typeof r)return r();e[r]=[i,n]}).amd=!0}();/*!
  * https://github.com/paulmillr/es6-shim
