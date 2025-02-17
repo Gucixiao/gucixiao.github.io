@@ -11,19 +11,51 @@
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Harlowe_Test_ArnoldSimulator.</tw-noscript></noscript></tw-story>
 <tw-storydata name="Harlowe_Test_ArnoldSimulator" startnode="1" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="771392AC-8D9E-4798-80F7-529A6CFAD7E5" options="" tags="" zoom="0.6" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">* {
   font-family: "sans-serif";
-  font-size: 18px
+  font-size: 18px;
 }
-</style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-tag name="正在施工" color="red"></tw-tag><tw-tag name="startup" color="green"></tw-tag><tw-tag name="header" color="blue"></tw-tag><tw-tag name="footer" color="blue"></tw-tag><tw-tag name="sidebar" color="purple"></tw-tag><tw-passagedata pid="1" name="Title" tags="" position="500,100" size="100,100">&lt;!--标题界面的外观--&gt;
-(enchant:?passage,
+
+/*
+  Reposition the Sidebar 'footer' tagged passage.
+*/
+tw-sidebar {
+  position: fixed;
+  display: inline-block;
+  top: 0;
+  left: 0;
+  width: 20%; /* padding-right of the tw-story element. */
+  max-width: 250px;
+  height: 100%;
+  padding: 0 0.5em 0.5em 0.5em;
+  border-right: 2px white;
+  text-align: left;
+  background-color: #292929;
+}
+
+/*搞一下文本跟左边栏的最小间隔*/
+tw-passage {
+  padding-left: 50px;
+}
+
+/*搞一下左侧菜单*/
+
+.menu li {
+  display: inline-block;
+  width: 100%;
+  border: 2px dotted white;
+}</style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-tag name="正在施工" color="red"></tw-tag><tw-tag name="startup" color="red"></tw-tag><tw-tag name="header" color="blue"></tw-tag><tw-tag name="footer" color="green"></tw-tag><tw-tag name="sidebar" color="purple"></tw-tag><tw-passagedata pid="1" name="Title" tags="" position="550,100" size="200,100">&lt;!--标题界面的外观--&gt;
+{
+(enchant:?passage, 
 	(align:&quot;=&gt;&lt;=&quot;) +
 	(font:&quot;sans-serif&quot;) +
 	(background:transparent)
 )
-
+&lt;!--标题界面的渐变背景--&gt;
 (enchant:?page,
-	(background:(gradient: 0, 0, #000000, 1, #00aec2))
+	(background:
+    	(gradient: 0, 0, #000000, 1, #00aec2)
+    )
 )
-
+}
 
 (b4r:&quot;dotted&quot;,&quot;none&quot;)+(b4r-size:2,2)+(b4r-colour:white)[&lt;h1&gt;阿诺德模拟器&lt;/h1&gt;]
 
@@ -32,18 +64,148 @@ by: 顾顾头]
 
 正在施工，请耐心等候
 
-&lt;img src=&quot;img\阿诺德.png&quot;&gt;
+&lt;img src=&quot;img\arnold.png&quot;&gt;
 
 (b4r:&quot;double&quot;,&quot;none&quot;)+(b4r-colour:white)[[[开始游戏|Intro]]
 (b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[存档]
 (b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[成就]
-(b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[[设置|Settings]]]</tw-passagedata><tw-passagedata pid="2" name="Intro" tags="" position="500,225" size="100,100">&lt;!--初始化人物属性--&gt;
-(set:$health to 100)
+(b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[[设置|Settings]]]</tw-passagedata><tw-passagedata pid="2" name="Intro" tags="" position="600,225" size="100,100">你是阿诺德。
 
-你是阿诺德。
+阿诺德·埃默里克·奥莱恩，一个平平无奇的研究员。
 
-</tw-passagedata><tw-passagedata pid="3" name="Bedroom" tags="" position="500,350" size="100,100">你在自己的卧室里。</tw-passagedata><tw-passagedata pid="4" name="Sidebar" tags="" position="650,100" size="100,100"></tw-passagedata><tw-passagedata pid="5" name="Settings" tags="" position="100,100" size="100,100">&lt;h3&gt;游戏设置&lt;/h3&gt;
-</tw-passagedata></tw-storydata>
+至少到昨天为止，你都是这么认为的，直到你今天一大早就被所长叫到办公室，语重心长地交代了一堆不知所云的事。具体内容你并没有听清，所长深谙的那些官话套话实在让人昏昏欲睡，你只能勉强抓住几个关键词：机密、特殊调动、不可泄露。等你终于从半梦半醒的状态中回过神来时，所长已经递给你一沓厚厚的文件，示意你签字。
+
+你低头看了看文件的抬头——“最高优先级任务指派令”——然后抬起头，对上所长意味深长的目光。
+
+“恭喜你，奥莱恩博士。”他缓缓说道，“从今天起，你的研究方向将发生一些……调整。”
+
+你皱起眉头，总觉得哪里不对劲，但在所长的注视下，你还是放弃了仔细阅读，提起笔，径直翻到最后签下了自己的名字。
+
+
+
+[[离开|Bedroom]]
+
+</tw-passagedata><tw-passagedata pid="3" name="Bedroom" tags="" position="600,350" size="100,100">你回到自己的卧室。
+
+[任务]&lt;continue|
+{
+(click-replace: ?continue)[(dialog: bind _decision, (passage: &quot;Mission&quot;)&#39;s source, &quot;收起&quot;, &quot;销毁&quot;)]
+
+(more:)[
+	(if: _decision is &quot;收起&quot;)[(put: &quot;Mission&quot; into $unique)你把纸张收起来。]
+    (else:)[你决定销毁这张要命的纸。]
+]
+}
+</tw-passagedata><tw-passagedata pid="4" name="Settings" tags="" position="800,100" size="100,100">&lt;h3&gt;游戏设置&lt;/h3&gt;
+</tw-passagedata><tw-passagedata pid="5" name="Header" tags="header" position="100,100" size="100,100"></tw-passagedata><tw-passagedata pid="6" name="A Sidebar" tags="footer" position="350,100" size="100,100">(append: ?sidebar)[$status
+]
+(append: ?sidebar)[
+	&lt;div class=&quot;menu&quot; style=&quot;text-align: center&quot;&gt;
+    	&lt;ul style=&quot;list-style: none; padding-inline-start: 0px&quot;&gt;&lt;li&gt;地名&lt;/li&gt;&lt;li&gt;地名&lt;/li&gt;&lt;li&gt;地名&lt;/li&gt;&lt;li&gt;地名&lt;/li&gt;&lt;li&gt;地名&lt;/li&gt;&lt;/ul&gt;    
+    &lt;/div&gt;
+]</tw-passagedata><tw-passagedata pid="7" name="A 初始化" tags="startup" position="225,100" size="100,100">{
+    &lt;!--日期初始化：故事开始于417年6月22日--&gt;
+    (set:$year to 417)
+    (set:$month to 6)
+    (set:$day to 22)
+
+    &lt;!--下面是时间系统的星期初始设置--&gt;
+    (set:$week_list to (a:&quot;一&quot; ,&quot;二&quot;,&quot;三&quot;,&quot;四&quot;,&quot;五&quot;,&quot;六&quot;,&quot;日&quot;))&lt;!--星期名字--&gt;
+    (set:$week to 5)&lt;!--设置开始星期的序号--&gt;
+
+    &lt;!--下面是时间系统的小时初始设置--&gt;
+    (set:$hour to 7)&lt;!--设置开始小时--&gt;
+    (set:$minute to 0)&lt;!--设置开始分钟--&gt;
+
+    &lt;!--属性--&gt;
+    (set: $status to 
+        (dm: &quot;health&quot;, 100,
+        &quot;tiredness&quot;, 0, 
+        &quot;stress&quot;, 0, 
+        &quot;trauma&quot;, 0, 
+        &quot;control&quot;, 0
+        )
+    )
+    
+    &lt;!-- 好感度 --&gt;
+    (set: $tiffly to 
+        (dm: &quot;好感&quot;, 0,
+        &quot;怀疑&quot;, 100,
+        &quot;控制&quot;, 100,
+        )
+    )
+    
+    &lt;!--背包--&gt;
+    (set: $backpack to 
+        (dm:)
+    )
+
+    &lt;!--特殊物品--&gt;
+    (set: $unique to 
+        (ds:)
+    )
+}</tw-passagedata><tw-passagedata pid="8" name="B 运行" tags="startup" position="225,175" size="100,100"></tw-passagedata><tw-passagedata pid="9" name="Mission" tags="" position="725,225" size="100,100">{(set: _burn to &quot;阅后即焚&quot;)}
+(colour:grey)[//你看向写着任务信息的纸张//]
+
+
+
+(colour:grey)[//角落里写着(colour:red)[_burn]//]
+</tw-passagedata><tw-passagedata pid="10" name="Saves" tags="" position="925,100" size="100,100">---
+1号存档:\
+&amp;emsp;(link:&quot;保存&quot;)[\
+(if:(save-game:&quot;Slot 1&quot;))[\
+保存成功!\
+  ]](else: )[\
+保存失败!\
+  ]\
+ &amp;emsp;\
+(if: (saved-games: ) contains &quot;Slot 1&quot;)[(link: &quot;加载&quot;)[\
+  (load-game: &quot;Slot 1&quot;)]]
+---
+[2号存档:]\
+&amp;emsp;(link:&quot;保存&quot;)[\
+(if:(save-game:&quot;Slot 2&quot;))[\
+保存成功!\
+  ]](else: )[\
+保存失败!\
+  ]\
+ &amp;emsp;\
+(if: (saved-games: ) contains &quot;Slot 2&quot;)[(link: &quot;加载&quot;)[\
+  (load-game: &quot;Slot 2&quot;)]]
+---
+[3号存档:]\
+&amp;emsp;(link:&quot;保存&quot;)[\
+(if:(save-game:&quot;Slot 3&quot;))[\
+保存成功!\
+  ]](else: )[\
+保存失败!\
+  ]\
+  &amp;emsp;\
+(if: (saved-games: ) contains &quot;Slot 3&quot;)[(link: &quot;加载&quot;)[\
+  (load-game: &quot;Slot 3&quot;)]]
+---
+[4号存档:]\
+&amp;emsp;(link:&quot;保存&quot;)[\
+(if:(save-game:&quot;Slot 4&quot;))[\
+保存成功!\
+  ]](else: )[\
+保存失败!\
+  ]\
+ &amp;emsp;\
+(if: (saved-games: ) contains &quot;Slot 4&quot;)[(link: &quot;加载&quot;)[\
+  (load-game: &quot;Slot 4&quot;)]]
+---
+[5号存档:]\
+&amp;emsp;(link:&quot;保存&quot;)[\
+(if:(save-game:&quot;Slot 5&quot;))[\
+保存成功!\
+  ]](else: )[\
+保存失败!\
+  ]\
+  &amp;emsp;\
+(if: (saved-games: ) contains &quot;Slot 5&quot;)[(link: &quot;加载&quot;)[\
+  (load-game: &quot;Slot 5&quot;)]]
+  ---</tw-passagedata></tw-storydata>
 <script title="Twine engine code" data-main="harlowe">(function(){"use strict";
 var require,define;!function(){var e={},r={};require=function(i){var n=e[i];return n&&(r[i]=n[1].apply(void 0,n[0].map(require)),e[i]=void 0),r[i]},(define=function(r,i,n){if("function"==typeof r)return r();e[r]=[i,n]}).amd=!0}();/*!
  * https://github.com/paulmillr/es6-shim
