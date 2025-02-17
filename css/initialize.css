@@ -1,0 +1,67 @@
+/* ini start */
+/* remove all default margin and paddings, also using css3 style box model */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* initializing body format */
+body {
+    /* anti-aliasation */
+    -webkit-font-smoothing: antialiased;
+}
+
+/* cancel italic in em and i */
+em,
+i {
+    font-style: normal;
+}
+
+/* remove dots from li in ul */
+ul>li {
+    list-style: none;
+}
+
+/* initializing all links, remove the underline, make it block by default*/
+a {
+    display: block;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/* initializing images */
+img {
+    /* for lower version browsers, remove borders when images contains a link */
+    border: 0;
+    /* remove the gap below images */
+    vertical-align: middle;
+}
+
+/* initializing cursors on buttons */
+button {
+    cursor: pointer;
+}
+
+/* remove outline for input elements */
+input {
+    outline: none;
+}
+
+/* forbid users to drag and alter the size for textareas */
+textarea {
+    resize: none;
+}
+
+/* establish a class to clear all floats within */
+.clearfix::before,
+.clearfix::after {
+    content: "";
+    display: table;
+}
+
+.clearfix::after {
+    clear: both;
+}
+
+/* ini end */
