@@ -14,10 +14,15 @@
   font-size: 18px;
 }
 
+tw-passage {
+  padding-top: 30px;
+  padding-bottom: 12vh;
+}
+
 /*Footer*/
 tw-include[type="footer"] {
   display: none;
-  max-height: 400px;
+  max-height: 10vh;
   width: 100%;
   background-color: #7c7c7c;
   position: fixed;
@@ -32,14 +37,14 @@ tw-include[type="footer"] {
 
 tw-include[type="header"] {
   display: none;
-  max-height: 50px;
+  max-height: 80px;
   width: 100%;
   background-color: #7c7c7c;
   position: fixed;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-}</style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-tag name="正在施工" color="red"></tw-tag><tw-tag name="startup" color="red"></tw-tag><tw-tag name="header" color="blue"></tw-tag><tw-tag name="footer" color="green"></tw-tag><tw-tag name="sidebar" color="purple"></tw-tag><tw-passagedata pid="1" name="Title" tags="" position="550,100" size="200,100">{&lt;!--标题界面的外观--&gt;
+}</style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-tag name="正在施工" color="red"></tw-tag><tw-tag name="startup" color="red"></tw-tag><tw-tag name="header" color="blue"></tw-tag><tw-tag name="footer" color="green"></tw-tag><tw-tag name="sidebar" color="purple"></tw-tag><tw-tag name="No-Connection" color="yellow"></tw-tag><tw-tag name="Standalone" color="yellow"></tw-tag><tw-tag name="Back-End" color="purple"></tw-tag><tw-passagedata pid="1" name="Title" tags="" position="550,100" size="200,100">{&lt;!--标题界面的外观--&gt;
 (enchant:?passage, 
 	(align:&quot;=&gt;&lt;=&quot;) +
 	(font:&quot;sans-serif&quot;) +
@@ -65,23 +70,46 @@ by: 顾顾头 &amp; 碱碱头]
 (b4r:&quot;double&quot;,&quot;none&quot;)+(b4r-colour:white)[[[开始游戏|Intro]]
 (b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[存档]
 (b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[成就]
-(b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[[设置|Settings]]]</tw-passagedata><tw-passagedata pid="2" name="Intro" tags="" position="600,225" size="100,100">你是阿诺德。
+(b4r:&quot;solid&quot;,&quot;none&quot;,&quot;none&quot;)+(b4r-colour:white)[[设置|Settings]]]</tw-passagedata><tw-passagedata pid="2" name="Intro" tags="" position="525,225" size="100,100">
+你是阿诺德。
 
 阿诺德·埃默里克·奥莱恩，一个平平无奇的研究员。
-{}
-至少到昨天为止，你都是这么认为的，直到你今天一大早就被所长叫到办公室，语重心长地交代了一堆不知所云的事。具体内容你并没有听清，所长深谙的那些官话套话实在让人昏昏欲睡，你只能勉强抓住几个关键词：机密、特殊调动、不可泄露。等你终于从半梦半醒的状态中回过神来时，所长已经递给你一沓厚厚的文件，示意你签字。
 
-你低头看了看文件的抬头——“最高优先级任务指派令”——然后抬起头，对上所长意味深长的目光。
+至少到昨天为止，你都是这么认为的。直到你今天一大早就被从睡梦中叫醒，不得不拖着睡眠不足的身体来到所长的办公室，听着眼前这个有些秃顶的中年人语重心长。所长的讲话如同往常一样，充满他浸淫官场多年练就的套话，毫无实质内容，实在是让人昏昏欲睡。
 
-“恭喜你，奥莱恩博士。”他缓缓说道，“从今天起，你的研究方向将发生一些……调整。”
+你努力听了半天，只能勉强抓住几个关键词：机密、特殊调动、不可泄露。等你终于从半梦半醒的状态中回过神来时，所长已经递给你一沓厚厚的文件，示意你签字。
 
-你皱起眉头，总觉得哪里不对劲，但在所长的注视下，你还是放弃了仔细阅读，提起笔，径直翻到最后签下了自己的名字。
+“恭喜你，奥莱恩博士。”所长缓缓说道，“从今天起，你的研究方向将发生一些……调整。”
 
 
+[查看文件]&lt;read1|
 
-[[离开|IntroBedroom]]
+[签字]&lt;sign1|
+(text-colour:grey)[你还没签字，所长不让你走。]&lt;noleave|
+{
+(click-replace: ?read1)[
+你低头看了看文件的抬头——“最高优先级任务指派令”——然后抬起头，对上所长意味深长的目光：&quot;还愣着干什么？我们大研究员还有更重要的事情要做，别把时间浪费在我这里。”
+(replace: ?sign1)[]
+&lt;br/&gt;
+[签字]&lt;sign2|]
 
-</tw-passagedata><tw-passagedata pid="3" name="IntroBedroom" tags="" position="600,350" size="100,100">你回到自己的卧室。
+(click-replace: ?sign1)[
+你犹豫了一瞬，但有些事情不是你能拒绝的。沉默片刻后，你的名字落在纸上。所长露出一丝意味不明的微笑。
+(replace: ?read1)[]
+&lt;br/&gt;
+也许你只有回到房间才有机会查看文件的内容了。
+(replace: ?noleave)[所长示意你可以离开了。
+&lt;br/&gt;
+(text-colour:blue)[[[离开|Intro2]]
+]]]
+
+(click-replace: ?sign2)[
+你最终还是签下了名字。文件的内容你根本没来得及看清，但所长显然不打算给你这个机会。你试图安慰自己：不过是个研究员，能有什么离谱的任务？可心里却止不住地发紧。  
+(replace: ?noleave)[所长示意你可以离开了。
+&lt;br/&gt;
+(text-colour:blue)[[[离开|Intro2]]]
+]]
+}</tw-passagedata><tw-passagedata pid="3" name="IntroBedroom" tags="" position="600,350" size="100,100">你回到自己的卧室。
 
 
 
@@ -96,7 +124,10 @@ by: 顾顾头 &amp; 碱碱头]
 ]
 }
 </tw-passagedata><tw-passagedata pid="4" name="Settings" tags="" position="800,100" size="100,100">&lt;h3&gt;游戏设置&lt;/h3&gt;
-</tw-passagedata><tw-passagedata pid="5" name="A Header" tags="header" position="100,100" size="100,100">{
+
+这里什么都没有！
+
+[[回主菜单|Title]]</tw-passagedata><tw-passagedata pid="5" name="A Header" tags="header" position="100,100" size="100,100">{
 &lt;!--当前时间和日期--&gt;
 (set: $displayMonth to $monthList&#39;s $month)
 (set: $displayWeek to $weekList&#39;s $week)
@@ -197,7 +228,7 @@ by: 顾顾头 &amp; 碱碱头]
         (ds:)
     )
 }
-</tw-passagedata><tw-passagedata pid="8" name="Mission" tags="" position="725,225" size="100,100">{(set: _burn to &quot;阅后即焚&quot;)}
+</tw-passagedata><tw-passagedata pid="8" name="Mission" tags="Standalone" position="775,225" size="100,100">{(set: _burn to &quot;阅后即焚&quot;)}
 (colour:grey)[//你看向写着任务信息的纸张//]
 
 
@@ -258,7 +289,26 @@ by: 顾顾头 &amp; 碱碱头]
   &amp;emsp;\
 (if: (saved-games: ) contains &quot;Slot 5&quot;)[(link: &quot;加载&quot;)[\
   (load-game: &quot;Slot 5&quot;)]]
-  ---</tw-passagedata><tw-passagedata pid="10" name="Time Runner" tags="header" position="100,175" size="100,100"></tw-passagedata></tw-storydata>
+  ---</tw-passagedata><tw-passagedata pid="10" name="Tester" tags="Back-End" position="1100,100" size="100,200">{
+(link-rerun:&quot;增加25分钟&quot;)[($addMinute:25)(go-to: (passage:)&#39;s name)]
+(link-rerun:&quot;增加50分钟&quot;)[($addMinute:50)(go-to: (passage:)&#39;s name)]
+(link-rerun:&quot;增加2小时&quot;)[($addMinute:120)(go-to: (passage:)&#39;s name)]
+(link-rerun:&quot;增加6小时&quot;)[($addMinute:360)(go-to: (passage:)&#39;s name)]
+(link-rerun:&quot;增加1天&quot;)[($addDay: 1)(go-to: (passage:)&#39;s name)]
+(link-rerun:&quot;增加15天&quot;)[($addDay: 15)(go-to: (passage:)&#39;s name)]
+(link-rerun:&quot;增加1个月&quot;)[($addDay: 30)(go-to: (passage:)&#39;s name)]
+}
+</tw-passagedata><tw-passagedata pid="11" name="Functions" tags="startup" position="225,175" size="100,100">{
+(set:$addMinute to (macro:...any-type _minute,[(output:)[(set:$minute to it +_minute&#39;s 1st)]]) )&lt;!--一个用于增加分钟数的新宏,使用方式请看测试页代码--&gt;
+
+(set:$addDay to (macro:...any-type _day,[(output:)[(set:$day to it +_day&#39;s 1st)]]) )&lt;!--一个用于增加天数的新宏,使用方式请看测试页代码--&gt;
+}</tw-passagedata><tw-passagedata pid="12" name="Intro2" tags="" position="650,225" size="100,100"></tw-passagedata><tw-passagedata pid="13" name="Time Runner" tags="header" position="100,175" size="100,100">(if:$minute_num &gt; 59)[(set:$hour_num to it +(floor: $minute_num/60))(set:$minute_num to $minute_num % 60)]&lt;!--满60分钟加1小时--&gt;
+(if:$hour_num is 24)[(set:$hour_num to 0)(set:$day_num to it+1)(set:$week_num to it+1)]&lt;!--假如到了24时，改为0时，天数+1，星期+1--&gt;
+(else-if:$hour_num &gt; 24)[(set:$hour_num to it-24)(set:$day_num to it+1)(set:$week_num to it+1)]&lt;!--假如超过了24时，更改小时数，天数+1，星期+1--&gt;
+(if:$week_num &gt; $week_both)[(set:$week_num to it%7)
+(if:$week_num is 0)[(set:$week_num to 7)]]&lt;!--最后星期天过完转回星期一--&gt;
+(if:$day_num &gt; 30)[(set:$month_num to it +(floor: $day_num/30))(set:$day_num to $day_num % 30)]&lt;!--每满30天月份+1--&gt;
+(if:$month_num is $month_both+1 )[(set:$month_num to 1)(set:$years to it+1)]&lt;!--最后一个月份过完转回第一个月份，并新增1年--&gt;</tw-passagedata></tw-storydata>
 <script title="Twine engine code" data-main="harlowe">(function(){"use strict";
 var require,define;!function(){var e={},r={};require=function(i){var n=e[i];return n&&(r[i]=n[1].apply(void 0,n[0].map(require)),e[i]=void 0),r[i]},(define=function(r,i,n){if("function"==typeof r)return r();e[r]=[i,n]}).amd=!0}();/*!
  * https://github.com/paulmillr/es6-shim
