@@ -1,0 +1,48 @@
+/* Sticky Header Bar */
+header {
+    /* positioning */
+    position: sticky;
+    top: 0;
+
+    /* display & box model */
+    height: 100px;
+
+    /* colour */
+    background-color: #bbbbbb;
+    border-bottom: 2px solid;
+}
+
+/* Main */
+main {
+    padding: 1vh 10vw;
+    min-height: calc(100vh - 200px);
+    overflow: hidden;
+}
+
+/* 使main里面的链接变成按钮 */
+main a {
+    display: block;
+    padding: 5px 15px;
+    border: 2px dotted gray;
+}
+
+main a:hover {
+    background-color: #bbbbbb;
+}
+
+/* 版本号、作者信息，灰色小字 */
+main .info {
+    display: inline-block;
+    padding-top: 0.5em;
+    font-size: 0.5em;
+    color: #555;
+}
+
+
+
+/* Footer Bar */
+footer {
+    height: 100px;
+    background-color: #555;
+    color: #eee;
+}
