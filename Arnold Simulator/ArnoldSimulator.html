@@ -88,23 +88,23 @@ by: 顾顾头 &amp; 碱碱头]
 (text-colour:grey)[你还没签字，所长不让你走。]&lt;noleave|
 {
 (click-replace: ?read1)[
-你低头看了看文件的抬头——“最高优先级任务指派令”——然后抬起头，对上所长意味深长的目光：&quot;还愣着干什么？我们大研究员还有更重要的事情要做，别把时间浪费在我这里。”
+(t8n: &quot;dissolve&quot;)[你低头看了看文件的抬头——“最高优先级任务指派令”——然后抬起头，对上所长意味深长的目光：&quot;还愣着干什么？我们大研究员还有更重要的事情要做，别把时间浪费在我这里。”]
 (replace: ?sign1)[]
 &lt;br/&gt;
 [签字]&lt;sign2|]
 
 (click-replace: ?sign1)[
-你犹豫了一瞬，但有些事情不是你能拒绝的。沉默片刻后，你的名字落在纸上。所长露出一丝意味不明的微笑。
+(t8n: &quot;dissolve&quot;)[你犹豫了一瞬，但有些事情不是你能拒绝的。沉默片刻后，你的名字落在纸上。所长露出一丝意味不明的微笑。]
 (replace: ?read1)[]
 &lt;br/&gt;
-也许你只有回到房间才有机会查看文件的内容了。
+(t8n: &quot;dissolve&quot;)[也许你只有回到房间才有机会查看文件的内容了。]
 (replace: ?noleave)[所长示意你可以离开了。
 &lt;br/&gt;
 (text-colour:blue)[[[离开|Intro2]]
 ]]]
 
 (click-replace: ?sign2)[
-你最终还是签下了名字。文件的内容你根本没来得及看清，但所长显然不打算给你这个机会。你试图安慰自己：不过是个研究员，能有什么离谱的任务？可心里却止不住地发紧。  
+(t8n: &quot;dissolve&quot;)[你最终还是签下了名字。文件的内容你根本没来得及看清，但所长显然不打算给你这个机会。你试图安慰自己：不过是个研究员，能有什么离谱的任务？可心里却止不住地发紧。  ]
 (replace: ?noleave)[所长示意你可以离开了。
 &lt;br/&gt;
 (text-colour:blue)[[[离开|Intro2]]]
@@ -127,29 +127,7 @@ by: 顾顾头 &amp; 碱碱头]
 
 这里什么都没有！
 
-[[回主菜单|Title]]</tw-passagedata><tw-passagedata pid="5" name="A Header" tags="header" position="100,100" size="100,100">{
-&lt;!--当前时间和日期--&gt;
-(set: $displayMonth to $monthList&#39;s $month)
-(set: $displayWeek to $weekList&#39;s $week)
-
-(if: $minute &lt;10)[
-	(set: $displayMinute to &quot;0&quot;+(string: $minute))
-    ]&lt;!--更新分钟，如果一个分钟数＜10则在数字前面添加0--&gt;
-(else:)[
-    (set: $displayMinute to (string: $minute))
-	]&lt;!--如果分钟是两位数直接显示--&gt;
-
-(if: $hour &lt;10)[
-	(set: $displayHour to &quot;0&quot;+(string: $hour))
-    ]&lt;!--更新小时，如果一个小时数＜10则在数字前面添加0--&gt;
-(else:)[
-	(set: $displayHour to (string:$hour))
-	]&lt;!--如果小时是两位数直接显示--&gt;
-
-(align:&quot;=&gt;&lt;=&quot;)[$year年 $displayMonth $day日 星期$displayWeek，$displayHour:$displayMinute]
-
----
-}</tw-passagedata><tw-passagedata pid="6" name="A Footer" tags="footer" position="350,100" size="100,100">{(if: (passage:)&#39;s name is not &quot;Title&quot;)[
+[[回主菜单|Title]]</tw-passagedata><tw-passagedata pid="5" name="A Footer" tags="footer" position="350,100" size="100,100">{(if: (passage:)&#39;s name is not &quot;Title&quot;)[
     &lt;script&gt;
         function adjustHeaderFooterWidth() {
             const passage = document.querySelector(&#39;tw-passage&#39;);
@@ -185,7 +163,7 @@ by: 顾顾头 &amp; 碱碱头]
         &lt;/li&gt;
     &lt;/ul&gt;
 ]
-}</tw-passagedata><tw-passagedata pid="7" name="A 初始化" tags="startup" position="225,100" size="100,100">{
+}</tw-passagedata><tw-passagedata pid="6" name="A 初始化" tags="startup" position="225,100" size="100,100">{
     &lt;!--日期初始化：故事开始于417年6月22日--&gt;
     (set:$year to 417)
     (set:$monthList to (a:&quot;春&quot;, &quot;夏&quot;, &quot;秋&quot;, &quot;冬&quot;))
@@ -199,7 +177,7 @@ by: 顾顾头 &amp; 碱碱头]
     &lt;!--下面是时间系统的小时初始设置--&gt;
     (set:$hour to 7)&lt;!--设置开始小时--&gt;
     (set:$minute to 0)&lt;!--设置开始分钟--&gt;
-    
+        
     &lt;!--属性--&gt;
     (set: $status to 
         (dm: &quot;health&quot;, 100,
@@ -228,13 +206,13 @@ by: 顾顾头 &amp; 碱碱头]
         (ds:)
     )
 }
-</tw-passagedata><tw-passagedata pid="8" name="Mission" tags="Standalone" position="775,225" size="100,100">{(set: _burn to &quot;阅后即焚&quot;)}
+</tw-passagedata><tw-passagedata pid="7" name="Mission" tags="Standalone" position="775,225" size="100,100">{(set: _burn to &quot;阅后即焚&quot;)}
 (colour:grey)[//你看向写着任务信息的纸张//]
 
 
 
 (colour:grey)[//角落里写着(colour:red)[_burn]//]
-</tw-passagedata><tw-passagedata pid="9" name="Saves" tags="" position="925,100" size="100,100">---
+</tw-passagedata><tw-passagedata pid="8" name="Saves" tags="" position="925,100" size="100,100">---
 1号存档:\
 &amp;emsp;(link:&quot;保存&quot;)[\
 (if:(save-game:&quot;Slot 1&quot;))[\
@@ -289,26 +267,87 @@ by: 顾顾头 &amp; 碱碱头]
   &amp;emsp;\
 (if: (saved-games: ) contains &quot;Slot 5&quot;)[(link: &quot;加载&quot;)[\
   (load-game: &quot;Slot 5&quot;)]]
-  ---</tw-passagedata><tw-passagedata pid="10" name="Tester" tags="Back-End" position="1100,100" size="100,200">{
-(link-rerun:&quot;增加25分钟&quot;)[($addMinute:25)(go-to: (passage:)&#39;s name)]
-(link-rerun:&quot;增加50分钟&quot;)[($addMinute:50)(go-to: (passage:)&#39;s name)]
-(link-rerun:&quot;增加2小时&quot;)[($addMinute:120)(go-to: (passage:)&#39;s name)]
-(link-rerun:&quot;增加6小时&quot;)[($addMinute:360)(go-to: (passage:)&#39;s name)]
-(link-rerun:&quot;增加1天&quot;)[($addDay: 1)(go-to: (passage:)&#39;s name)]
-(link-rerun:&quot;增加15天&quot;)[($addDay: 15)(go-to: (passage:)&#39;s name)]
-(link-rerun:&quot;增加1个月&quot;)[($addDay: 30)(go-to: (passage:)&#39;s name)]
-}
-</tw-passagedata><tw-passagedata pid="11" name="Functions" tags="startup" position="225,175" size="100,100">{
-(set:$addMinute to (macro:...any-type _minute,[(output:)[(set:$minute to it +_minute&#39;s 1st)]]) )&lt;!--一个用于增加分钟数的新宏,使用方式请看测试页代码--&gt;
+  ---</tw-passagedata><tw-passagedata pid="9" name="Functions" tags="startup" position="225,175" size="100,100">{ 
+    &lt;!--设置加时间的宏--&gt;
+    (set:$addMinute to (macro: num-type _minute,[
+            (output:)[
+                (set:$minute to it +_minute)
+                (goto: (passage:)&#39;s name)
+            ]
+        ]
+    ) 
+    )
+        
+    &lt;!--设置加日期的宏--&gt;
+    (set:$addDay to 
+        (macro: num-type _day,[
+            (output:)[(set: $day to it +_day)
+            (set: $week to it +_day)
+            (goto: (passage:)&#39;s name)
+            ]
+        ]
+    ) 
+    )
+}</tw-passagedata><tw-passagedata pid="10" name="Intro2" tags="" position="650,225" size="100,100">你在走廊上。
 
-(set:$addDay to (macro:...any-type _day,[(output:)[(set:$day to it +_day&#39;s 1st)]]) )&lt;!--一个用于增加天数的新宏,使用方式请看测试页代码--&gt;
-}</tw-passagedata><tw-passagedata pid="12" name="Intro2" tags="" position="650,225" size="100,100"></tw-passagedata><tw-passagedata pid="13" name="Time Runner" tags="header" position="100,175" size="100,100">(if:$minute_num &gt; 59)[(set:$hour_num to it +(floor: $minute_num/60))(set:$minute_num to $minute_num % 60)]&lt;!--满60分钟加1小时--&gt;
-(if:$hour_num is 24)[(set:$hour_num to 0)(set:$day_num to it+1)(set:$week_num to it+1)]&lt;!--假如到了24时，改为0时，天数+1，星期+1--&gt;
-(else-if:$hour_num &gt; 24)[(set:$hour_num to it-24)(set:$day_num to it+1)(set:$week_num to it+1)]&lt;!--假如超过了24时，更改小时数，天数+1，星期+1--&gt;
-(if:$week_num &gt; $week_both)[(set:$week_num to it%7)
-(if:$week_num is 0)[(set:$week_num to 7)]]&lt;!--最后星期天过完转回星期一--&gt;
-(if:$day_num &gt; 30)[(set:$month_num to it +(floor: $day_num/30))(set:$day_num to $day_num % 30)]&lt;!--每满30天月份+1--&gt;
-(if:$month_num is $month_both+1 )[(set:$month_num to 1)(set:$years to it+1)]&lt;!--最后一个月份过完转回第一个月份，并新增1年--&gt;</tw-passagedata></tw-storydata>
+[[回房间|IntroBedroom]]</tw-passagedata><tw-passagedata pid="11" name="Time Runner" tags="header" position="100,100" size="100,100">{
+    &lt;!-- 满60分钟加1小时 --&gt;
+    (if: $minute &gt; 59)[
+    (set: $hour to it + (floor: $minute / 60))
+    (set: $minute to $minute % 60)
+    ]
+    &lt;!-- 满24小时加1天 --&gt;
+    (if: $hour &gt; 23)[
+    (set: $day to it + 1)
+    (set: $week to it + 1)
+    (set: $hour to it - 24)
+    ]
+    &lt;!-- 过周日返回周一 --&gt;
+    (if: $week &gt; 7)[
+    (set: $week to 1)
+    ]
+    &lt;!-- 满28天加1个月 --&gt;
+    (if: $day &gt; 28)[
+    (set: $month to it + 1)
+    (set: $day to it - 28)
+    ]
+    &lt;!-- 满4个月加1年 --&gt;
+    (if: $month &gt; 4)[
+    (set: $year to it + 1)
+    (set: $month to 1)
+    ]
+    
+    &lt;!--当前显示的时间和日期--&gt;
+	(set: _displayMonth to $monthList&#39;s $month)
+	(set: _displayWeek to $weekList&#39;s $week)
+    (set: _displayHour to 0)
+    (set: _displayMinute to 0)
+    
+  (if: $minute &lt;10)[
+      (set: _displayMinute to &quot;0&quot;+(string: $minute))
+      ]&lt;!--显示分钟，如果一个分钟数＜10则在数字前面添加0--&gt;
+  (else:)[
+      (set: _displayMinute to (string: $minute))
+      ]&lt;!--如果分钟是两位数直接显示--&gt;
+
+  (if: $hour &lt;10)[
+      (set: _displayHour to &quot;0&quot;+(string: $hour))
+      ]&lt;!--显示小时，如果一个小时数＜10则在数字前面添加0--&gt;
+  (else:)[
+      (set: _displayHour to (string:$hour))
+      ]&lt;!--如果小时是两位数直接显示--&gt;
+
+  &lt;!-- 到422年冬1自动结束游戏 --&gt;
+
+  (align:&quot;=&gt;&lt;=&quot;)[$year年 _displayMonth $day日 星期_displayWeek _displayHour:_displayMinute]
+
+---
+}</tw-passagedata><tw-passagedata pid="12" name="Tester" tags="Back-End" position="1100,100" size="100,200">{
+(link:&quot;增加25分钟&quot;)[($addMinute:25)(go-to: (passage:)&#39;s name)]
+(link:&quot;增加50分钟&quot;)[($addMinute:50)(go-to: (passage:)&#39;s name)]
+(link:&quot;增加3天&quot;)[($addDay:3)(go-to: (passage:)&#39;s name)]
+}
+</tw-passagedata></tw-storydata>
 <script title="Twine engine code" data-main="harlowe">(function(){"use strict";
 var require,define;!function(){var e={},r={};require=function(i){var n=e[i];return n&&(r[i]=n[1].apply(void 0,n[0].map(require)),e[i]=void 0),r[i]},(define=function(r,i,n){if("function"==typeof r)return r();e[r]=[i,n]}).amd=!0}();/*!
  * https://github.com/paulmillr/es6-shim
