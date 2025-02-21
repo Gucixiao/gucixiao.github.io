@@ -89,23 +89,23 @@ by: 顾顾头 &amp; 碱碱头]
 {
 (click-replace: ?read1)[
 (t8n: &quot;dissolve&quot;)[你低头看了看文件的抬头——“最高优先级任务指派令”——然后抬起头，对上所长意味深长的目光：&quot;还愣着干什么？我们大研究员还有更重要的事情要做，别把时间浪费在我这里。”]
-(replace: ?sign1)[]
+(hide: ?sign1)
 &lt;br/&gt;
 [签字]&lt;sign2|]
 
 (click-replace: ?sign1)[
 (t8n: &quot;dissolve&quot;)[你犹豫了一瞬，但有些事情不是你能拒绝的。沉默片刻后，你的名字落在纸上。所长露出一丝意味不明的微笑。]
-(replace: ?read1)[]
+(hide: ?read1)
 &lt;br/&gt;
 (t8n: &quot;dissolve&quot;)[也许你只有回到房间才有机会查看文件的内容了。]
-(replace: ?noleave)[所长示意你可以离开了。
+(replace: ?noleave)[(text-colour:green)[所长示意你可以离开了。]
 &lt;br/&gt;
 (text-colour:blue)[[[离开|Intro2]]
 ]]]
 
 (click-replace: ?sign2)[
 (t8n: &quot;dissolve&quot;)[你最终还是签下了名字。文件的内容你根本没来得及看清，但所长显然不打算给你这个机会。你试图安慰自己：不过是个研究员，能有什么离谱的任务？可心里却止不住地发紧。  ]
-(replace: ?noleave)[所长示意你可以离开了。
+(replace: ?noleave)[(text-colour:green)[所长示意你可以离开了。]
 &lt;br/&gt;
 (text-colour:blue)[[[离开|Intro2]]]
 ]]
@@ -272,7 +272,6 @@ by: 顾顾头 &amp; 碱碱头]
     (set:$addMinute to (macro: num-type _minute,[
             (output:)[
                 (set:$minute to it +_minute)
-                (goto: (passage:)&#39;s name)
             ]
         ]
     ) 
@@ -283,14 +282,17 @@ by: 顾顾头 &amp; 碱碱头]
         (macro: num-type _day,[
             (output:)[(set: $day to it +_day)
             (set: $week to it +_day)
-            (goto: (passage:)&#39;s name)
             ]
         ]
     ) 
     )
 }</tw-passagedata><tw-passagedata pid="10" name="Intro2" tags="" position="650,225" size="100,100">你在走廊上。
 
-[[回房间|IntroBedroom]]</tw-passagedata><tw-passagedata pid="11" name="Time Runner" tags="header" position="100,100" size="100,100">{
+(link:&quot;回房间（0:05）&quot;)[($addMinute:5)(go-to:&quot;IntroBedroom&quot;)]
+
+
+
+[[ |IntroBedroom]]</tw-passagedata><tw-passagedata pid="11" name="Time Runner" tags="header" position="100,100" size="100,100">{
     &lt;!-- 满60分钟加1小时 --&gt;
     (if: $minute &gt; 59)[
     (set: $hour to it + (floor: $minute / 60))
