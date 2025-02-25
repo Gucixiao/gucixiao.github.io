@@ -16,29 +16,42 @@ header {
 main {
     padding: 1vh 10vw;
     min-height: calc(100vh - 200px);
-    overflow: hidden;
 }
 
 /* 使main里面的链接变成按钮 */
 main a {
+    position: relative;
     display: block;
     padding: 5px 15px;
     border: 2px dotted gray;
 }
 
+/* 鼠标放在上面变色 */
 main a:hover {
     background-color: #bbbbbb;
 }
 
 /* 版本号、作者信息，灰色小字 */
-main .info {
+main span {
     display: inline-block;
     padding-top: 0.5em;
     font-size: 0.5em;
     color: #555;
 }
 
+/* 灰色小字固定在右下角 */
+main span.version {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+}
 
+/* 图片尺寸限制 */
+main img {
+    max-width: 30%;
+    aspect-ratio: initial;
+    margin-right: 5%;
+}
 
 /* Footer Bar */
 footer {
