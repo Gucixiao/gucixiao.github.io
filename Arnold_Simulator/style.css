@@ -1,0 +1,192 @@
+/* add class "hidden" so that anything in this class dissapears*/
+.hidden {
+        display: none !important;
+}
+
+/* banner img align center and lock width*/
+.passage .banner {
+text-align: center;
+}
+.passage .banner img {
+    max-width: 80vw;
+    max-height: 300px;
+    aspect-ratio: initial;
+}
+
+/* ui-bar */
+/* move the history buttons to the left */
+#ui-bar-history {
+    text-align: left;
+}
+/* div story-banner become absolute position */
+#story-banner {
+    position: absolute;
+    height: 170px;
+    width: 230px;
+    background-color: rgba(64, 64, 64, 0.9);
+}
+#story-banner img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-height: 170px;
+    max-width: 230px;
+}
+#story-banner #banner-border {
+    z-index: 99;
+}
+#story-banner #banner-base {
+    z-index: 10;
+}
+#story-banner #banner-cloth {
+    z-index: 20;
+}
+/* adjustment for StoryCaption */
+#story-caption {
+    text-align: left;
+}
+#story-caption hr {
+    margin: 0.2em 0;
+    border-color: #fff;
+}
+#story-caption meter {
+    width: 100%;
+}
+#time-display {
+    text-align: center;
+}
+
+/* initialize icon */
+.icon:before {
+font-family: sc-icons !important;
+font-style: normal;
+font-weight: normal;
+font-variant: normal;
+line-height: 1;
+speak: never;
+text-rendering: auto;
+text-transform: none;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+margin-right: 0.5em;
+}
+
+/* button style */
+.passage button {
+margin: auto;
+width: 100%;
+max-width: 260px;
+text-align: center;
+background-color: #222;
+color: gold;
+border: 1px solid #555;
+padding: 0.6em;
+}
+.passage button:hover {
+background-color: #333;
+border: 1px solid white;
+}
+
+#menu-button a {
+display: inline-block;
+margin: auto;
+width: 94%;
+max-width: 260px;
+text-align: center;
+background-color: #222;
+color: white;
+border: 1px solid #555;
+padding: 0.4em;
+}
+#menu-button a:hover, #menu-bottom a:hover {
+background-color: #333;
+border: 1px solid white;
+}
+#menu-bottom, #menu-middle {
+display: flex;
+min-width: 100%;
+}
+  
+/* ---------------------------------------------------
+    Styling: (tooltip.css)
+    .tooltip-popup - The container for the tooltip
+    .tooltip-header - An optional title property
+    .tooltip-body - The tooltip text
+    - Anchor styling can be changed with the property "anchorStyle" (anchor = the object to hover over to display the tooltip)
+
+    Settings:
+        title: A bigger title text - default null
+        message: The actual tooltip content
+        anchorStyle: Optional css class for the anchor
+        position: Position of the tooltip. Options: cursor, top, bottom, left, right, bottomRight, bottomLeft, topRight, topLeft
+        cursor: Cursor styling when hovering over the anchor
+        delay: Optional delay - default 150ms)
+        width: Optional width of the tooltip. If set to null, it will resize itself based on the content
+        maxWidth: Optional max width of the tooltip. When it reaches this width, text will wrap to the next row */
+.tooltip-popup {
+    top: 0;
+    display: inline;
+    position: absolute;
+    border: 1px solid gold;
+    border-radius: 5px;
+    font-weight: normal;
+    text-decoration: none;
+    padding: 5px;
+    max-width: 90%;
+    box-shadow: 0 0 8px 2px var(--900);
+    background: rgba(64, 64, 64, 0.9) repeat-x 0 0;
+    background-image: linear-gradient(to bottom, var(--tooltip-gradient));
+    z-index: 1000;
+}
+.tooltip-anchor {
+    border-bottom: 1px dotted var(--tooltip-border);
+}
+.tooltip-header {
+    color: var(--gold);
+}
+.tooltip-body {
+    font-size: 85%;
+}
+
+/* ==================================================
+    notify.min.css, by chapel; for use with notify.js
+    version 1.0.0
+    ==================================================
+ */
+ #notify {
+    position : fixed;
+    display : block;
+    width : 16em;
+    right : -20em; top : 2em;
+    padding : 0.5em;
+    background-color : #fff;
+    color : #000;
+    -webkit-transition : right 0.3s;
+    -moz-transition : right 0.3s;
+    -o-transition : right 0.3s;
+    transition : right 0.3s;
+}
+#notify.open { right : 0; }
+
+/* ---------------------------------------------------
+    speech.css, by chapel; for use with speech.js
+    version 1.0.0
+*/
+.say {
+    border: 1px solid #eee;
+    overflow: auto;
+    }
+.say > img {
+    max-width: 20%;
+    float: left;
+    margin-right: 1em;
+}
+.say > p:first-of-type {
+    font-weight: bold;
+    margin: 0.2em 0;
+    border-bottom: 1px solid #eee;
+}
+.say > p:last-of-type {
+    padding: 0.5em;
+    margin: 0;
+}

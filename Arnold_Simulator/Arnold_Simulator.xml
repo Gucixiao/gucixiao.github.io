@@ -1,0 +1,185 @@
+<!-- tag: Code-Passages -->
+<!-- StoryInit -->
+<StoryInit>
+    /* 删除自带的menu边栏按钮 */
+    <<remove "#menu-core">>
+
+    /* 阿诺德初始化 */
+    <<set $arnold = {
+        health: 100,
+        fatigue: 0,
+        stress: 0,
+        control: 100,
+        inventory: {},
+    }>>
+    /* 特殊物品和任务进度追踪*/
+    <<set $unique = {}>>
+
+    /* 时间变量初始化 */
+    <<set $time to {
+        minute: 0,
+        hour: 7,
+        day: 21,
+        week: 4,
+        month: 1,
+        year: 417,
+    }>>
+
+    /* 文字变量初始化 */
+    <<set $hint to []>>
+    <<set $display to {
+        month: ["春", "夏", "秋", "冬"],
+        week: ["一", "二", "三", "四", "五", "六", "日"],
+        hour: 0,
+        minute: 0,
+    }>>
+
+    /*小树枝语快速插入初始化*/
+    <<set $twig = {
+        A: "<img src='img/twig/A.png'>",
+        B: "<img src='img/twig/B.png'>",
+        C: "<img src='img/twig/C.png'>",
+        D: "<img src='img/twig/D.png'>",
+        E: "<img src='img/twig/E.png'>",
+        F: "<img src='img/twig/F.png'>",
+        G: "<img src='img/twig/G.png'>",
+        H: "<img src='img/twig/H.png'>",
+        I: "<img src='img/twig/I.png'>",
+        J: "<img src='img/twig/J.png'>",
+        K: "<img src='img/twig/K.png'>",
+        L: "<img src='img/twig/L.png'>",
+        M: "<img src='img/twig/M.png'>",
+        N: "<img src='img/twig/N.png'>",
+        O: "<img src='img/twig/O.png'>",
+        P: "<img src='img/twig/P.png'>",
+        Q: "<img src='img/twig/Q.png'>",
+        R: "<img src='img/twig/R.png'>",
+        S: "<img src='img/twig/S.png'>",
+        T: "<img src='img/twig/T.png'>",
+        U: "<img src='img/twig/U.png'>",
+        V: "<img src='img/twig/V.png'>",
+        W: "<img src='img/twig/W.png'>",
+        X: "<img src='img/twig/X.png'>",
+        Y: "<img src='img/twig/Y.png'>",
+        Z: "<img src='img/twig/Z.png'>"
+    } >>
+
+    /*小图标快速插入初始化*/
+    <<set $icon = {
+        
+    }>>
+</StoryInit>
+
+<!-- StoryBanner -->
+<StoryBanner
+    <div id="banner-container" tooltip="$banner-tooltip">
+        <img src="img/storybanner/border.png" id="banner-border">\
+        <img src="img/storybanner/base.png" id="banner-base">\
+        <img src="img/storybanner/default.png" id="banner-cloth">\
+    </div>
+</StoryBanner>
+
+<!-- StoryCaption -->   
+<StoryCaption>
+    <<if passage() is "Title">>
+    <div id="menu-button">
+        <a id="saves-button">存档</a>
+        @@#menu-bottom;
+        <a id="settings-button">设置</a>
+        <a id="achievement-button">成就</a>
+        @@
+        </div>
+    <<else>>
+        <div id="time-display">\
+        <hr>\
+        <<time>>
+        <hr>\
+        </div>
+        \<div id="stat-bar">\
+            <div tooltip="疲劳：$arnold.fatigue" id="fatigue">
+                疲劳：你感觉体力充沛
+                <meter min="0" low="25" high="75" optimum="20" max="100" @value=$arnold.fatigue></meter>
+            </div>\
+            <div tooltip="压力：$arnold.stress" id="stress">\
+                压力：你十分平静
+                <meter min="0" low="25" high="75" optimum="20" max="100" @value=$arnold.stress></meter>
+            </div>\
+            <div tooltip="自控：$arnold.control" id="control">\
+                自控：你充满自信
+                <meter min="0" low="50" high="75" optimum="80" max="100" @value=$arnold.control></meter>
+            </div>\
+            <div tooltip="健康：$arnold.health" id="health">\
+                健康：你的身体十分健康
+                <meter min="0" low="50" high="75" optimum="80" max="100" @value=$arnold.health></meter>
+            </div>
+        </div>  
+        提示：<<print $hint>>
+        
+        
+        <div id="menu-button">
+            \<a id="status-button">属性</a>
+            \<a id="social-button">社交</a>
+            \@@#menu-middle;
+            \<a id="inventory-button">物品</a>
+            \<a id="journal-button">日志</a>
+            \@@
+            <a id="saves-button">存档</a>
+            @@#menu-bottom;
+            <a id="settings-button">设置</a>
+            <a id="achievement-button">成就</a>
+            @@
+        </div>\
+    <</if>>
+</StoryCaption>
+
+<!-- ==================================================================== -->
+<!-- tag: widget -->
+<!-- time -->
+<<nobr>>
+    <<widget "time">>
+        /* 满60分钟加1小时 */
+        <<if $time.minute >= 60>>
+            <<set $time.minute = 0>>
+            <<set $time.hour += 1>>
+        <</if>>
+        /* 满24小时加1天 */
+        <<if $time.hour >= 24>>
+            <<set $time.hour = 0>>
+            <<set $time.day += 1>>
+            <<set $time.week += 1>>
+        <</if>>
+        /* 满7天加1周 */
+        <<if $time.week >= 7>>
+            <<set $time.week = 0>>
+        <</if>>
+        /* 满30天加1月 */
+        <<if $time.day >= 30>>
+            <<set $time.day = 1>>
+            <<set $time.month += 1>>
+        <</if>>
+        /* 满4月加1年 */
+        <<if $time.month >= 4>>
+            <<set $time.month = 0>>
+            <<set $time.year += 1>>
+        <</if>>
+        /* 显示时间 */
+        <<if $time.hour < 10>>
+            <<set $display.hour = "0" + $time.hour>>
+        <<else>> 
+            <<set $display.hour = $time.hour>>
+        <</if>>
+        <<if $time.minute < 10>>
+            <<set $display.minute = "0" + $time.minute>>
+        <<else>> 
+            <<set $display.minute = $time.minute>>
+        <</if>>
+        $time.year年 <<print $display.month[$time.month]>> $time.day日 星期<<print $display.week[$time.week]>> $display.hour:$display.minute
+    <</widget>>
+<</nobr>>
+
+<!-- addTime -->
+<<nobr>>
+    <<widget "addTime">>
+        <<set $time.minute += Number($args[0])>>
+    <</widget>>
+<</nobr>>
