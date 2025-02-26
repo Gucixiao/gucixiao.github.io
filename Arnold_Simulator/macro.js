@@ -1,3 +1,6 @@
+// Stop autosave
+Config.saves.maxAutoSaves = 0;
+
 // Limit the history to 20
 Config.history.maxStates = 20;
 
