@@ -83,10 +83,10 @@
 <StoryCaption>
     <<if passage() is "Title">>
 		<div id="menu-button">
-        <a id="saves-button">存档</a>
-        @@#menu-bottom;
-        <a id="settings-button">设置</a>
-        <a id="achievement-button">成就</a>
+            <<link "存档">><<script>>UI.saves()<</script>><</link>>
+            @@#menu-bottom;
+            <<link "设置">><<script>>UI.settings()<</script>><</link>>
+            <<link "成就">><<dialogAPI "成就">><</link>>
         @@
         </div>
         <<else>>
@@ -117,16 +117,16 @@
         
         
         <div id="menu-button">
-            \<a id="status-button">属性</a>
-            \<a id="social-button">社交</a>
+            \<<link "属性">><<dialogAPI "属性">><</link>>
+            \<<link "社交">><<dialogAPI "社交">><</link>>
             \@@#menu-middle;
-            \<a id="inventory-button">物品</a>
-            \<a id="journal-button">日志</a>
+            \<<link "物品">><<dialogAPI "物品">><</link>>
+            \<<link "日志">><<dialogAPI "日志">><</link>>
             \@@
-            <a id="saves-button">存档</a>
+            <<link "存档">><<script>>UI.saves()<</script>><</link>>
             @@#menu-bottom;
-            <a id="settings-button">设置</a>
-            <a id="achievement-button">成就</a>
+            <<link "设置">><<script>>UI.settings()<</script>><</link>>
+            <<link "成就">><<dialogAPI "成就">><</link>>
             @@
         </div>\
     <</if>>
@@ -180,13 +180,23 @@
 <!-- addTime -->
 <<nobr>>
     <<widget "addTime">>
-        <<set $time.minute += Number(_args[0])>>
+        <<switch _args[0]>>
+            <<case "hour">>
+                <<set $time.hour += Number(_args[1])>>
+            <<case "minute">>
+                <<set $time.minute += Number(_args[1])>>
+            <<case "day">>
+                <<set $time.day += Number(_args[1])>>    
+        <</switch>>
+        /* 强制刷新StoryCaption */
+        <<refreshSidebar>>
     <</widget>>
 <</nobr>>
 
 <!-- addStat -->
 <<nobr>>
     <<widget "addStat">>
+    	<<set _passage to passage()>>
         <<set $arnold[_args[0]] += Number(_args[1])>>
         <<if $arnold.fatigue >= 100 or $arnold.stress >= 100>>   
         /* 如果疲劳过度或压力过大，则昏倒 */
@@ -205,8 +215,11 @@
                     <<else>>
                         <<set _passage to "Faint">>
                 <</if>>
+        	<<goto _passage>>
+        <<else>>
+        /* 强制刷新StoryCaption */
+		<<refreshSidebar>>
         <</if>>
-        <<goto _passage>>
     <</widget>>
 <</nobr>>
 
@@ -222,7 +235,7 @@
     <<widget "statBar">>
         <<if $arnold.fatigue is 0>>
             <<set _fatigue to "你感觉体力充沛">>
-            <<set _fcolor to "green">>
+            <<set _fcolor to "forestgreen">>
         <<elseif $arnold.fatigue <= 10>>
             <<set _fatigue to "你并不觉得累">>
             <<set _fcolor to "greenyellow">>
@@ -241,7 +254,7 @@
         <</if>>
         <<if $arnold.stress is 0>>
             <<set _stress to "你十分平静">>
-            <<set _scolor to "green">>
+            <<set _scolor to "forestgreen">>
         <<elseif $arnold.stress <= 10>>
             <<set _stress to "你仍然能保持冷静">>
             <<set _scolor to "greenyellow">>
@@ -260,7 +273,7 @@
         <</if>>
         <<if $arnold.control >= 100>>
             <<set _control to "你充满自信">>
-            <<set _ccolor to "green">>
+            <<set _ccolor to "forestgreen">>
         <<elseif $arnold.control >= 80>>
             <<set _control to "你仍能掌控局势">>
             <<set _ccolor to "greenyellow">>
@@ -276,7 +289,7 @@
         <</if>>
         <<if $arnold.health >= 100>>
             <<set _health to "你的身体十分健康">>
-            <<set _hcolor to "green">>
+            <<set _hcolor to "forestgreen">>
         <<elseif $arnold.health >= 80>>
             <<set _health to "你还算健康">>
             <<set _hcolor to "greenyellow">>
@@ -299,6 +312,47 @@
         <<elseif _args[0] is "health">>
             <<print "<span style='color:" + _hcolor + ";'>" + _health + "</span>">>
         <</if>>
+    <</widget>>
+<</nobr>>
+
+<!-- refreshSidebar -->
+<<nobr>>
+    <<widget "refreshSidebar">>
+        <<replace "#story-caption">>
+            <<include "StoryCaption">>
+        <</replace>>
+    <</widget>>
+<</nobr>>    
+
+<!-- dialogAPI -->
+<<nobr>>
+    <<widget "dialogAPI">>
+        <<switch _args[0]>>
+            <<case "属性">>
+                <<dialog "属性">>
+                
+                <</dialog>>
+            <<case "社交">>
+                <<dialog "社交">>
+                
+                <</dialog>>   
+            <<case "物品">>
+                <<dialog "物品">>
+                
+                <</dialog>>
+            <<case "日志">>
+                <<dialog "日志">>
+                
+                <</dialog>>
+            <<case "设置">>
+                <<dialog "设置">>
+                
+                <</dialog>>
+            <<case "成就">>
+                <<dialog "成就">>
+                
+                <</dialog>>
+        <</switch>>
     <</widget>>
 <</nobr>>
 

@@ -5,7 +5,7 @@
 
 /* banner img align center and lock width*/
 .passage .banner {
-text-align: center;
+    text-align: center;
 }
 .passage .banner img {
     max-width: 80vw;
@@ -58,56 +58,63 @@ text-align: center;
 
 /* initialize icon */
 .icon:before {
-font-family: sc-icons !important;
-font-style: normal;
-font-weight: normal;
-font-variant: normal;
-line-height: 1;
-speak: never;
-text-rendering: auto;
-text-transform: none;
--webkit-font-smoothing: antialiased;
--moz-osx-font-smoothing: grayscale;
-margin-right: 0.5em;
+    font-family: sc-icons !important;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    line-height: 1;
+    speak: never;
+    text-rendering: auto;
+    text-transform: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin-right: 0.5em;
 }
 
 /* button style */
 .passage button {
-margin: auto;
-width: 100%;
-max-width: 260px;
-text-align: center;
-background-color: #222;
-color: gold;
-border: 1px solid #555;
-padding: 0.6em;
+    margin: auto;
+    width: 100%;
+    max-width: 260px;
+    text-align: center;
+    background-color: #222;
+    color: gold;
+    border: 1px solid #555;
+    padding: 0.6em;
 }
 .passage button:hover {
-background-color: #333;
-border: 1px solid white;
+    background-color: #333;
+    border: 1px solid white;
 }
 
 #menu-button a {
-display: inline-block;
-margin: auto;
-width: 94%;
-max-width: 260px;
-text-align: center;
-background-color: #222;
-color: white;
-border: 1px solid #555;
-padding: 0.4em;
+    display: inline-block;
+    margin: auto;
+    width: 94%;
+    max-width: 260px;
+    text-align: center;
+    background-color: #222;
+    color: white;
+    border: 1px solid #555;
+    padding: 0.4em;
 }
 #menu-button a:hover, #menu-bottom a:hover {
-background-color: #333;
-border: 1px solid white;
+    background-color: #333;
+    border: 1px solid white;
 }
 #menu-bottom, #menu-middle {
-display: flex;
-min-width: 100%;
+    display: flex;
+    width: 100%;
+}
+
+/* fix debug button box failure due to addition of span*/
+/* still don't know why this happens */
+#menu-button span.debug {
+    width: 112px;
 }
   
-/* ---------------------------------------------------
+
+/* ===============================================================
     Styling: (tooltip.css)
     .tooltip-popup - The container for the tooltip
     .tooltip-header - An optional title property
@@ -153,7 +160,7 @@ min-width: 100%;
     version 1.0.0
     ==================================================
  */
- #notify {
+#notify {
     position : fixed;
     display : block;
     width : 16em;

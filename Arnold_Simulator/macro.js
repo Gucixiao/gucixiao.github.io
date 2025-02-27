@@ -5,6 +5,7 @@ Config.saves.maxAutoSaves = 0;
 Config.history.maxStates = 20;
 
 
+/*=================================================================*/
 /* twine-user-script #88: "tooltip.js" */
 /* eslint-disable no-new */
 /* The main purpose for this jQuery plugin was to enable tooltips for dynamically created elements, by using jQuery
