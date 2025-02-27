@@ -72,7 +72,7 @@
 
 <!-- StoryBanner -->
 <StoryBanner
-    <div id="banner-container" tooltip="$banner-tooltip">
+    <div id="banner-container" tooltip="<<bannerTooltip>>">
         <img src="img/storybanner/border.png" id="banner-border">\
         <img src="img/storybanner/base.png" id="banner-base">\
         <img src="img/storybanner/default.png" id="banner-cloth">\
@@ -82,14 +82,14 @@
 <!-- StoryCaption -->   
 <StoryCaption>
     <<if passage() is "Title">>
-    <div id="menu-button">
+		<div id="menu-button">
         <a id="saves-button">存档</a>
         @@#menu-bottom;
         <a id="settings-button">设置</a>
         <a id="achievement-button">成就</a>
         @@
         </div>
-    <<else>>
+        <<else>>
         <div id="time-display">\
         <hr>\
         <<time>>
@@ -97,22 +97,22 @@
         </div>
         \<div id="stat-bar">\
             <div tooltip="疲劳：$arnold.fatigue" id="fatigue">
-                疲劳：你感觉体力充沛
+                疲劳：<<statBar "fatigue">>
                 <meter min="0" low="25" high="75" optimum="20" max="100" @value=$arnold.fatigue></meter>
             </div>\
             <div tooltip="压力：$arnold.stress" id="stress">\
-                压力：你十分平静
+                压力：<<statBar "stress">>
                 <meter min="0" low="25" high="75" optimum="20" max="100" @value=$arnold.stress></meter>
             </div>\
             <div tooltip="自控：$arnold.control" id="control">\
-                自控：你充满自信
-                <meter min="0" low="50" high="75" optimum="80" max="100" @value=$arnold.control></meter>
+                自控：<<statBar "control">>
+                <meter min="0" low="30" high="75" optimum="80" max="100" @value=$arnold.control></meter>
             </div>\
             <div tooltip="健康：$arnold.health" id="health">\
-                健康：你的身体十分健康
-                <meter min="0" low="50" high="75" optimum="80" max="100" @value=$arnold.health></meter>
+                健康：<<statBar "health">>
+                <meter min="0" low="30" high="75" optimum="80" max="100" @value=$arnold.health></meter>
             </div>
-        </div>  
+        </div>
         提示：<<print $hint>>
         
         
@@ -180,6 +180,169 @@
 <!-- addTime -->
 <<nobr>>
     <<widget "addTime">>
-        <<set $time.minute += Number($args[0])>>
+        <<set $time.minute += Number(_args[0])>>
     <</widget>>
 <</nobr>>
+
+<!-- addStat -->
+<<nobr>>
+    <<widget "addStat">>
+        <<set $arnold[_args[0]] += Number(_args[1])>>
+        <<if $arnold.fatigue >= 100 or $arnold.stress >= 100>>   
+        /* 如果疲劳过度或压力过大，则昏倒 */
+            <<set _passage to "Faint">>
+        <</if>>
+        /* 如果健康小于0，则死亡 */
+        <<if $arnold.health <= 0>>
+            <<set _passage to "BE-Death">>
+            /* 如果健康过低，则有一定几率昏倒 */
+            <<elseif $arnold.health <= 30>>
+                <<set _random to random(1, 100)>>
+                <<if _random <= 90>>
+                    <<addStat "control" -1>>
+                    <<addStat "stress" 1>>
+                    <<addStat "fatigue" 1>>
+                    <<else>>
+                        <<set _passage to "Faint">>
+                <</if>>
+        <</if>>
+        <<goto _passage>>
+    <</widget>>
+<</nobr>>
+
+<!-- bannerTooltip -->
+<<nobr>>
+    <<widget "bannerTooltip">>
+        你在室内。温度很舒适。你穿着你的白大褂。
+    <</widget>>
+<</nobr>>
+
+<!-- statBar -->
+<<nobr>>
+    <<widget "statBar">>
+        <<if $arnold.fatigue is 0>>
+            <<set _fatigue to "你感觉体力充沛">>
+            <<set _fcolor to "green">>
+        <<elseif $arnold.fatigue <= 10>>
+            <<set _fatigue to "你并不觉得累">>
+            <<set _fcolor to "greenyellow">>
+        <<elseif $arnold.fatigue <= 30>>
+            <<set _fatigue to "你感觉有些疲劳">>
+            <<set _fcolor to "sandybrown">>
+        <<elseif $arnold.fatigue <= 50>>
+            <<set _fatigue to "你有些疲惫，但还能勉强应付">>
+            <<set _fcolor to "salmon">>
+        <<elseif $arnold.fatigue <= 80>>
+            <<set _fatigue to "你非常疲倦，需要休息">>
+            <<set _fcolor to "tomato">>
+        <<else>>
+            <<set _fatigue to "你已经精疲力尽">>
+            <<set _fcolor to "red">>
+        <</if>>
+        <<if $arnold.stress is 0>>
+            <<set _stress to "你十分平静">>
+            <<set _scolor to "green">>
+        <<elseif $arnold.stress <= 10>>
+            <<set _stress to "你仍然能保持冷静">>
+            <<set _scolor to "greenyellow">>
+        <<elseif $arnold.stress <= 30>> 
+            <<set _stress to "你有些焦虑">>
+            <<set _scolor to "sandybrown">>
+        <<elseif $arnold.stress <= 50>>
+            <<set _stress to "你倍感压力，几乎喘不上气来">>
+            <<set _scolor to "salmon">>
+        <<elseif $arnold.stress <= 80>>
+            <<set _stress to "你的压力到了极限，几乎承受不住">>
+            <<set _scolor to "tomato">>
+        <<else>>
+            <<set _stress to "你已经濒临崩溃">>
+            <<set _scolor to "red">>
+        <</if>>
+        <<if $arnold.control >= 100>>
+            <<set _control to "你充满自信">>
+            <<set _ccolor to "green">>
+        <<elseif $arnold.control >= 80>>
+            <<set _control to "你仍能掌控局势">>
+            <<set _ccolor to "greenyellow">>
+        <<elseif $arnold.control >= 50>>
+            <<set _control to "你感觉自己有些失控">>
+            <<set _ccolor to "salmon">>
+        <<elseif $arnold.control >= 25>>
+            <<set _control to "你充满忧虑">>
+            <<set _ccolor to "tomato">>
+        <<else>>
+            <<set _control to "你完全失去了自控能力">>
+            <<set _ccolor to "red">>
+        <</if>>
+        <<if $arnold.health >= 100>>
+            <<set _health to "你的身体十分健康">>
+            <<set _hcolor to "green">>
+        <<elseif $arnold.health >= 80>>
+            <<set _health to "你还算健康">>
+            <<set _hcolor to "greenyellow">>
+        <<elseif $arnold.health >= 50>>
+            <<set _health to "你感觉有些虚弱">>
+            <<set _hcolor to "salmon">>        
+        <<elseif $arnold.health >= 30>>
+            <<set _health to "你感到十分不适，需要休息">>
+            <<set _hcolor to "tomato">>
+        <<else>>
+            <<set _health to "你的身体状况很糟糕">>
+            <<set _hcolor to "red">>
+        <</if>>
+        <<if _args[0] is "fatigue">>
+            <<print "<span style='color:" + _fcolor + ";'>" + _fatigue + "</span>">>
+        <<elseif _args[0] is "stress">>
+            <<print "<span style='color:" + _scolor + ";'>" + _stress + "</span>">>
+        <<elseif _args[0] is "control">>
+            <<print "<span style='color:" + _ccolor + ";'>" + _control + "</span>">>
+        <<elseif _args[0] is "health">>
+            <<print "<span style='color:" + _hcolor + ";'>" + _health + "</span>">>
+        <</if>>
+    <</widget>>
+<</nobr>>
+
+/* ==================================================================== */
+/* tag: event */
+/* Faint */
+<<nobr>>
+    <<set _fatigue to true>>
+    <<set _stress to true>>
+    <<set _health to true>>
+    <<if $arnold.fatigue >= 100 and $arnold.stress < 90>>
+        <<set _stress to false>>
+        <<elseif $arnold.stress >= 100 and $arnold.fatigue < 90>>
+            <<set _fatigue to false>>
+        <<else>>
+            <<set _fatigue to false>>
+            <<set _stress to false>>
+    <</if>>        
+    <<if $arnold.health > 30>>
+        <<set _health to false>>
+    <</if>>
+    <<if _fatigue and _stress and _health>>
+        <<set _print to "你的身体已经达到极限，疲劳、压力和虚弱感交织在一起，让你再也无法支撑。眼前的世界变得模糊，意识渐渐远去，你无力地倒在地上，陷入深深的昏迷。">>
+    <<elseif _fatigue and _stress>>
+        <<set _print to "持续的疲劳与沉重的压力压得你喘不过气来。你的身体摇摇欲坠，意识开始飘忽，最终双腿一软，眼前一黑，彻底昏了过去。">>
+    <<elseif _fatigue and _health>>
+        <<set _print to "过度的疲劳让你的四肢沉重，而虚弱的身体再也无法支撑。你感到一阵眩晕，步伐踉跄，紧接着便失去了意识，重重倒下。">>
+    <<elseif _stress and _health>>
+        <<set _print to "压力如同一座无形的大山，让你的内心濒临崩溃，而身体的虚弱更让你无法支撑。你感到心跳加速，胸口发闷，最后在极度的不适中昏倒过去。">>
+    <<elseif _fatigue>>
+        <<set _print to "长时间的疲惫让你的身体彻底透支，沉重的眼皮再也抬不起来。你踉跄几步，最终倒在地上，陷入深深的昏迷。">>
+    <<elseif _stress>>
+        <<set _print to "焦虑和压力不断积聚，如同无形的枷锁束缚着你的精神。你的大脑一片混沌，意识逐渐模糊，最终在崩溃的边缘失去了知觉。">>
+    <<elseif _health>>
+        <<set _print to "你的身体太过羸弱，此时连站立都变得困难。你试图深呼吸，却感到一阵头晕目眩，眼前一黑，便失去了所有知觉。">>
+    <</if>>
+<</nobr>>\
+@@#faint;\
+// _print //
+
+
+<<link "醒来 (3:00)">>
+        <<replace "#faint" t8n>>test<</replace>>
+<</link>>
+@@
+
+/* ==================================================================== */
