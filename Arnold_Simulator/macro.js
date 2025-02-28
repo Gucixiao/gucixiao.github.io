@@ -13,6 +13,13 @@ $(document).click(function (e) {
 });
 
 
+//点击任何位于.passage的链接都将触发<<refreshSidbar>> widget
+$(document).click(function (e) {
+    if (!$(e.target).closest("#ui-bar").length && $(e.target).is("a")) {
+        $.wiki('<<refreshSidebar>>')
+    }
+});
+
 /* ============================================ */
 /* imported js */
 /*=====================================================*/

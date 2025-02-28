@@ -15,7 +15,7 @@
         health: 100,
         fatigue: 0,
         stress: 0,
-        control: 100,
+        control: 1000,
         inventory: {},
     }>>
     /* 特殊物品和任务进度追踪*/
@@ -38,7 +38,29 @@
         hour: 0,
         minute: 0,
     }>>
+    <<set $hints to [
+        "你可以通过属性页面查看自己的状态。",
+        "你可以通过物品页面查看或使用你的物品。",
+        "你可以通过社交页面查看你的人际关系。",
+        "你可以通过日志页面查看你的事件记录。",
+        "你可以通过存档页面保存你的进度。",
+        "你可以通过设置页面调整游戏设置。",
+        "你可以通过成就页面查看你达成的成就。",
+        "压力过大会影响你的自控能力。",
+        "疲劳过度会影响你的健康。",
+        "当你过于劳累时，你有可能会昏倒。",
+        "当你的健康过低时，你有可能会昏倒。",
+        "当你的压力过大时，你有可能会昏倒。",
+        "注意你的情绪，过高的压力可能导致不理智的决定。",
+        "注意你的健康，过度的疲劳可能导致身体不适。",
+        "注意你的自控，失去自控可能导致不可挽回的后果。",
+        "注意你的社交，良好的人际关系可能带来意想不到的好处。",
+        "注意你的时间，时间的流逝可能带来不同的事件。",
+
+    ]>>
+
     /* 其他工具变量 */
+    /* 检查当前菜单页面是否已经打开用的变量 */
     <<set $currentPage to "">>
 
     /*小树枝语快速插入初始化*/
@@ -104,23 +126,19 @@
         </div>
         \<div id="stat-bar">\
             <div tooltip="疲劳：$arnold.fatigue" id="fatigue">
-                疲劳：<<statBar "fatigue">>
-                <meter min="0" low="25" high="75" optimum="20" max="100" @value=$arnold.fatigue></meter>
-            </div>\
+                疲劳：<<statBar "fatigue">>\
+            </div>\                
             <div tooltip="压力：$arnold.stress" id="stress">\
-                压力：<<statBar "stress">>
-                <meter min="0" low="25" high="75" optimum="20" max="100" @value=$arnold.stress></meter>
+                压力：<<statBar "stress">>\
             </div>\
             <div tooltip="自控：$arnold.control" id="control">\
-                自控：<<statBar "control">>
-                <meter min="0" low="30" high="75" optimum="80" max="100" @value=$arnold.control></meter>
+                自控：<<statBar "control">>\
             </div>\
             <div tooltip="健康：$arnold.health" id="health">\
-                健康：<<statBar "health">>
-                <meter min="0" low="30" high="75" optimum="80" max="100" @value=$arnold.health></meter>
+                健康：<<statBar "health">>\
             </div>
         </div>
-        提示：<<print $hint>>
+        @@color:gold;提示：@@ <<print $hints.random()>>
         
         
         <div id="menu-button">
@@ -139,8 +157,12 @@
     <</if>>
 </StoryCaption>
 
+<!-- PassageHeader -->
+/* 暂时无内容 */
+
 <!-- PassageFooter -->
 <PassageFooter>
+    /* 用来搭建菜单显示的框架 */
     <div id="page-container" class="hidden">\
         <div id="page-title">\
             <<button " ">><<toggleclass "#page-container" "hidden">><</button>>\
@@ -198,46 +220,29 @@
 
 <!-- addTime -->
 <<nobr>>
+    /* _args[0] 必须是 string，其他的必须是 number
+    这里没有加报错的情况因为我懒，而且这些代码又不会有别人看 */
     <<widget "addTime">>
-        <<switch _args[0]>>
-            <<case "hour">>
-                <<set $time.hour += Number(_args[1])>>
-            <<case "minute">>
-                <<set $time.minute += Number(_args[1])>>
-            <<case "day">>
-                <<set $time.day += Number(_args[1])>>    
-        <</switch>>
-        /* 强制刷新StoryCaption */
-        <<refreshSidebar>>
+        <<set $time[$args[0]] += Number(_args[1])>>
+        <<if _args[0] is "minute">>
+            /* 每分钟+1疲劳 */
+            <<addStat "fatigue" _args[1]>>
+        <</if>>
     <</widget>>
 <</nobr>>
 
 <!-- addStat -->
 <<nobr>>
+    /* _args[0] 必须是 string，其他的必须是 number
+    这里没有加报错的情况因为我懒，而且这些代码又不会有别人看 */
     <<widget "addStat">>
-    	<<set _passage to passage()>>
         <<set $arnold[_args[0]] += Number(_args[1])>>
-        <<if $arnold.fatigue >= 100 or $arnold.stress >= 100>>   
-        /* 如果疲劳过度或压力过大，则昏倒 */
-            <<set _passage to "Faint">>
-        <</if>>
-        /* 如果健康小于0，则死亡 */
-        <<if $arnold.health <= 0>>
-            <<set _passage to "BE-Death">>
-            /* 如果健康过低，则有一定几率昏倒 */
-            <<elseif $arnold.health <= 30>>
-                <<set _random to random(1, 100)>>
-                <<if _random <= 90>>
-                    <<addStat "control" -1>>
-                    <<addStat "stress" 1>>
-                    <<addStat "fatigue" 1>>
-                    <<else>>
-                        <<set _passage to "Faint">>
-                <</if>>
-        	<<goto _passage>>
-        <<else>>
-        /* 强制刷新StoryCaption */
-		<<refreshSidebar>>
+        /* 如果疲劳过高，则任何加疲劳的行为都会加压力 */
+        <<if $arnold.fatigue >= 500 and _args[0] is "fatigue">>
+            <<set $arnold.stress += _args[1]>>
+            /* 如果压力过大，则任何加压力的行为都会减少自控 */
+        <<elseif $arnold.stress >= 500 and _args[0] is "stress">>
+            <<set $arnold.control -= _args[1]>>
         <</if>>
     <</widget>>
 <</nobr>>
@@ -255,17 +260,17 @@
         <<if $arnold.fatigue is 0>>
             <<set _fatigue to "你感觉体力充沛">>
             <<set _fcolor to "forestgreen">>
-        <<elseif $arnold.fatigue <= 10>>
+        <<elseif $arnold.fatigue <= 100>>
             <<set _fatigue to "你并不觉得累">>
             <<set _fcolor to "greenyellow">>
-        <<elseif $arnold.fatigue <= 30>>
+        <<elseif $arnold.fatigue <= 300>>
             <<set _fatigue to "你感觉有些疲劳">>
             <<set _fcolor to "sandybrown">>
-        <<elseif $arnold.fatigue <= 50>>
-            <<set _fatigue to "你有些疲惫，但还能勉强应付">>
+        <<elseif $arnold.fatigue <= 500>>
+            <<set _fatigue to "你有些疲惫">>
             <<set _fcolor to "salmon">>
-        <<elseif $arnold.fatigue <= 80>>
-            <<set _fatigue to "你非常疲倦，需要休息">>
+        <<elseif $arnold.fatigue <= 800>>
+            <<set _fatigue to "你非常疲倦">>
             <<set _fcolor to "tomato">>
         <<else>>
             <<set _fatigue to "你已经精疲力尽">>
@@ -274,36 +279,36 @@
         <<if $arnold.stress is 0>>
             <<set _stress to "你十分平静">>
             <<set _scolor to "forestgreen">>
-        <<elseif $arnold.stress <= 10>>
+        <<elseif $arnold.stress <= 100>>
             <<set _stress to "你仍然能保持冷静">>
             <<set _scolor to "greenyellow">>
-        <<elseif $arnold.stress <= 30>> 
+        <<elseif $arnold.stress <= 300>> 
             <<set _stress to "你有些焦虑">>
             <<set _scolor to "sandybrown">>
-        <<elseif $arnold.stress <= 50>>
-            <<set _stress to "你倍感压力，几乎喘不上气来">>
+        <<elseif $arnold.stress <= 500>>
+            <<set _stress to "焦虑使你几乎无法呼吸">>
             <<set _scolor to "salmon">>
-        <<elseif $arnold.stress <= 80>>
-            <<set _stress to "你的压力到了极限，几乎承受不住">>
+        <<elseif $arnold.stress <= 800>>
+            <<set _stress to "你几乎要承受不住">>
             <<set _scolor to "tomato">>
         <<else>>
-            <<set _stress to "你已经濒临崩溃">>
+            <<set _stress to "你已经完全崩溃">>
             <<set _scolor to "red">>
         <</if>>
-        <<if $arnold.control >= 100>>
+        <<if $arnold.control >= 1000>>
             <<set _control to "你充满自信">>
             <<set _ccolor to "forestgreen">>
-        <<elseif $arnold.control >= 80>>
+        <<elseif $arnold.control >= 800>>
             <<set _control to "你仍能掌控局势">>
             <<set _ccolor to "greenyellow">>
-        <<elseif $arnold.control >= 50>>
+        <<elseif $arnold.control >= 500>>
             <<set _control to "你感觉自己有些失控">>
             <<set _ccolor to "salmon">>
-        <<elseif $arnold.control >= 25>>
+        <<elseif $arnold.control >= 250>>
             <<set _control to "你充满忧虑">>
             <<set _ccolor to "tomato">>
         <<else>>
-            <<set _control to "你完全失去了自控能力">>
+            <<set _control to "你完全失去自控">>
             <<set _ccolor to "red">>
         <</if>>
         <<if $arnold.health >= 100>>
@@ -322,14 +327,19 @@
             <<set _health to "你的身体状况很糟糕">>
             <<set _hcolor to "red">>
         <</if>>
+        /* 显示 */
         <<if _args[0] is "fatigue">>
             <<print "<span style='color:" + _fcolor + ";'>" + _fatigue + "</span>">>
+            <<print "<div class='meter'><div style='background-color:" + _fcolor + "; width:" + ($arnold.fatigue / 10) + "%;'></div></div>">>
         <<elseif _args[0] is "stress">>
             <<print "<span style='color:" + _scolor + ";'>" + _stress + "</span>">>
+            <<print "<div class='meter'><div style='background-color:" + _scolor + "; width:" + ($arnold.stress / 10) + "%;'></div></div>">>
         <<elseif _args[0] is "control">>
             <<print "<span style='color:" + _ccolor + ";'>" + _control + "</span>">>
+            <<print "<div class='meter'><div style='background-color:" + _ccolor + "; width:" + ($arnold.control / 10) + "%;'></div></div>">>
         <<elseif _args[0] is "health">>
             <<print "<span style='color:" + _hcolor + ";'>" + _health + "</span>">>
+            <<print "<div class='meter'><div style='background-color:" + _hcolor + "; width:" + $arnold.health + "%;'></div></div>">>            
         <</if>>
     <</widget>>
 <</nobr>>
@@ -337,9 +347,43 @@
 <!-- refreshSidebar -->
 <<nobr>>
     <<widget "refreshSidebar">>
+    /* 首先检查有没有任何数值低于或高于初始数值，有的话重置 */
+    <<if $arnold.fatigue < 0>>
+        <<set $arnold.fatigue to 0>>
+    <</if>>
+    <<if $arnold.stress < 0>>
+        <<set $arnold.stress to 0>>
+    <</if>>
+    <<if $arnold.control > 1000>>
+        <<set $arnold.control to 1000>>
+    <</if>>
+    <<if $arnold.health > 100>>
+        <<set $arnold.health to 100>>
+    <</if>>
+
+    /* 首先检测健康是不是低于0，是的话会死掉 */
+    <<if $arnold.health <= 0>>
+        <<goto "BE-Death">>
+    /* 最后检测健康是不是过低，过低的话有概率昏倒 */
+    <<elseif $arnold.health <= 30>>
+        <<if random(1, 100) <= 10>>
+            <<goto "Faint">>
+        /* 没昏倒的话，会昏昏沉沉并加疲劳，加压力 */
+        <<else>>
+            <<set $arnold.fatigue += 50>>
+            <<set $arnold.stress += 50>>
+        <</if>>
+    <</if>>
+    
+    /* 然后检测疲劳和压力有没有满，满了就昏倒 */
+    <<if $arnold.fatigue >= 1000 or $arnold.stress >= 1000>>
+        <<goto "Faint">>
+    <<else>>
+        /* 都没有的话才刷新 */
         <<replace "#story-caption">>
             <<include "StoryCaption">>
         <</replace>>
+    <</if>>
     <</widget>>
 <</nobr>>    
 
@@ -385,9 +429,9 @@
     <<set _fatigue to true>>
     <<set _stress to true>>
     <<set _health to true>>
-    <<if $arnold.fatigue >= 100 and $arnold.stress < 90>>
+    <<if $arnold.fatigue >= 1000 and $arnold.stress < 950>>
         <<set _stress to false>>
-        <<elseif $arnold.stress >= 100 and $arnold.fatigue < 90>>
+        <<elseif $arnold.stress >= 1000 and $arnold.fatigue < 950>>
             <<set _fatigue to false>>
         <<else>>
             <<set _fatigue to false>>
