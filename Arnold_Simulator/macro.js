@@ -4,8 +4,18 @@ Config.saves.maxAutoSaves = 0;
 // Limit the history to 20
 Config.history.maxStates = 20;
 
+// Set clicking event to close the pages
+$(document).click(function (e) {
+    // Check if the click is outside of #menu-button or #page-container
+    if (!$(e.target).closest("#menu-button").length && !$(e.target).closest("#page-container").length) {
+        $("#page-container").addClass("hidden");
+    }
+});
 
-/*=================================================================*/
+
+/* ============================================ */
+/* imported js */
+/*=====================================================*/
 /* twine-user-script #88: "tooltip.js" */
 /* eslint-disable no-new */
 /* The main purpose for this jQuery plugin was to enable tooltips for dynamically created elements, by using jQuery

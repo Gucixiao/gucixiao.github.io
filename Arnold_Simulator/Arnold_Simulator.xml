@@ -26,13 +26,14 @@
     }>>
 
     /* 文字变量初始化 */
-    <<set $hint to []>>
     <<set $display to {
         month: ["春", "夏", "秋", "冬"],
         week: ["一", "二", "三", "四", "五", "六", "日"],
         hour: 0,
         minute: 0,
     }>>
+    /* 其他工具变量 */
+    <<set $currentPage to "">>
 
     /*小树枝语快速插入初始化*/
     <<set $twig = {
@@ -83,10 +84,10 @@
 <StoryCaption>
     <<if passage() is "Title">>
 		<div id="menu-button">
-            <<link "存档">><<script>>UI.saves()<</script>><</link>>
+            <<link "存档">><<openPage "存档">><</link>>
             @@#menu-bottom;
-            <<link "设置">><<script>>UI.settings()<</script>><</link>>
-            <<link "成就">><<dialogAPI "成就">><</link>>
+            <<link "设置">><<openPage "设置">><</link>>
+            <<link "成就">><<openPage "成就">><</link>>
         @@
         </div>
         <<else>>
@@ -117,20 +118,32 @@
         
         
         <div id="menu-button">
-            \<<link "属性">><<dialogAPI "属性">><</link>>
-            \<<link "社交">><<dialogAPI "社交">><</link>>
+            \<<link "属性">><<openPage "属性">><</link>>
+            \<<link "社交">><<openPage "社交">><</link>>
             \@@#menu-middle;
-            \<<link "物品">><<dialogAPI "物品">><</link>>
-            \<<link "日志">><<dialogAPI "日志">><</link>>
+            \<<link "物品">><<openPage "物品">><</link>>
+            \<<link "日志">><<openPage "日志">><</link>>
             \@@
-            <<link "存档">><<script>>UI.saves()<</script>><</link>>
+            <<link "存档">><<openPage "存档">><</link>>
             @@#menu-bottom;
-            <<link "设置">><<script>>UI.settings()<</script>><</link>>
-            <<link "成就">><<dialogAPI "成就">><</link>>
+            <<link "设置">><<openPage "设置">><</link>>
+            <<link "成就">><<openPage "成就">><</link>>
             @@
         </div>\
     <</if>>
 </StoryCaption>
+
+<!-- PassageFooter -->
+<PassageFooter>
+    <div id="page-container" class="hidden">\
+        <div id="page-title">\
+            <<button " ">><<toggleclass "#page-container" "hidden">><</button>>\
+            <div id="page-tabs">\</div>\
+        </div>\
+        <div id="page-content">\
+        </div>\
+    </div>
+</PassageFooter>
 
 <!-- ==================================================================== -->
 <!-- tag: widget -->
@@ -324,36 +337,39 @@
     <</widget>>
 <</nobr>>    
 
-<!-- dialogAPI -->
+<!-- openPage -->
 <<nobr>>
-    <<widget "dialogAPI">>
-        <<switch _args[0]>>
-            <<case "属性">>
-                <<dialog "属性">>
-                
-                <</dialog>>
-            <<case "社交">>
-                <<dialog "社交">>
-                
-                <</dialog>>   
-            <<case "物品">>
-                <<dialog "物品">>
-                
-                <</dialog>>
-            <<case "日志">>
-                <<dialog "日志">>
-                
-                <</dialog>>
-            <<case "设置">>
-                <<dialog "设置">>
-                
-                <</dialog>>
-            <<case "成就">>
-                <<dialog "成就">>
-                
-                <</dialog>>
-        <</switch>>
-    <</widget>>
+    <<widget "openPage">>
+        /* 如果是hidden则显示 */
+        <<if $("#page-container").hasClass("hidden")>>
+            <<toggleclass "#page-container" "hidden">>
+        /* 如果不是hidden，但现在又按了一样的按钮，则关掉 */
+        <<elseif _args[0] === $currentPage>>
+            <<toggleclass "#page-container" "hidden">>
+        <</if>>
+        <<set $currentPage to _args[0]>>
+        <<replace "#page-tabs">>
+            <<print _args[0]>>
+        <</replace>>
+        <<replace "#page-content">>
+            <<switch _args[0]>>
+                <<case "属性">>
+                    <<include "stat-page">>
+                <<case "社交">>
+                    <<include "social-page">>
+                <<case "物品">>
+                    <<include "inventory-page">>
+                <<case "日志">>
+                    <<include "journal-page">>
+                <<case "存档">>
+                    <<include "saves-page">>
+                <<case "设置">>
+                    <<include "settings-page">>
+                <<case "成就">>
+                    <<include "achievements-page">>
+            <</switch>>
+        <</replace>>
+    <</widget>> 
 <</nobr>>
 
 /* ==================================================================== */
