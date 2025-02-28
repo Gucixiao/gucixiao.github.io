@@ -127,16 +127,17 @@
     top: 0;
     left: 18em;
     margin-top: 80px;
-    width:80vw;
-    max-width: 850px;
-    height: 90vh;
-    max-height: 1000px;
+    width:850px;
+    max-width: 70vw;
+    height: 1000px;
+    max-height: 80vh;
     background: rgba(0, 0, 0, 0.95);
     border: 1px solid #555;
     border-radius: 10px;
     padding: 1em;
+    overflow: auto;
 }
-@media (max-width: 768px) {
+@media (max-width: 960px) {
     #page-container {
         margin-top: 50px;
         width: 80vw;
@@ -149,6 +150,7 @@
         border: 1px solid #555;
         border-radius: 5px;
         padding: 1em;
+        overflow: auto;
     }
 }  
 #page-container #page-title {

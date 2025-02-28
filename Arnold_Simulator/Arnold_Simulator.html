@@ -233,16 +233,17 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
     top: 0;
     left: 18em;
     margin-top: 80px;
-    width:80vw;
-    max-width: 850px;
-    height: 90vh;
-    max-height: 1000px;
+    width:850px;
+    max-width: 70vw;
+    height: 1000px;
+    max-height: 80vh;
     background: rgba(0, 0, 0, 0.95);
     border: 1px solid #555;
     border-radius: 10px;
     padding: 1em;
+    overflow: auto;
 }
-@media (max-width: 768px) {
+@media (max-width: 960px) {
     #page-container {
         margin-top: 50px;
         width: 80vw;
@@ -255,6 +256,7 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
         border: 1px solid #555;
         border-radius: 5px;
         padding: 1em;
+        overflow: auto;
     }
 }  
 #page-container #page-title {
@@ -984,11 +986,9 @@ v1.1.1
 ----
 
 &#39;&#39;Changelog:&#39;&#39;
-* 2025-02-26
-&gt;- 左侧边栏按钮现在仍然是占位符，点了也没用
-&gt;- 现在阿诺德走路会消耗时间了
-&gt;- 现在阿诺德体力耗尽/压力过高/健康过低会昏倒。
-&gt;- 如果阿诺德健康变成0的话就会死掉了！
+* 2025-02-27
+&gt;- 左侧边栏按钮现在可以点了，但是还啥内容也没有
+&gt;- 我真服了，跟个菜单栏搏斗五小时
 &gt;- 下一步是做菜单栏，包括保存、读取、设置等功能
 &gt;- 对话框已经准备好，稍微调试就可以使用了
 
@@ -1062,7 +1062,12 @@ v1.1.1
 阿诺德模拟器
 Arnold Simulator
 &lt;&lt;else&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="StoryInit" tags="Code-Passages" position="75,75" size="100,200">    /* 删除自带的menu边栏按钮 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="StoryInit" tags="Code-Passages" position="75,75" size="100,200">    &lt;&lt;if Config.debug is false&gt;&gt;
+        /* 非测试情况下强制每次都从Title开始 */
+        &lt;&lt;goto &quot;Title&quot;&gt;&gt;
+    &lt;&lt;/if&gt;&gt;
+    
+    /* 删除自带的menu边栏按钮 */
     &lt;&lt;remove &quot;#menu-core&quot;&gt;&gt;
 
     /* 阿诺德初始化 */
@@ -1432,7 +1437,7 @@ Arnold Simulator
 &lt;&lt;/nobr&gt;&gt;  </tw-passagedata><tw-passagedata pid="24" name="PassageFooter" tags="Code-Passages" position="75,575" size="100,100">    &lt;div id=&quot;page-container&quot; class=&quot;hidden&quot;&gt;\
         &lt;div id=&quot;page-title&quot;&gt;\
             &lt;&lt;button &quot; &quot;&gt;&gt;&lt;&lt;toggleclass &quot;#page-container&quot; &quot;hidden&quot;&gt;&gt;&lt;&lt;/button&gt;&gt;\
-            &lt;div id=&quot;page-tabs&quot;&gt;\&lt;/div&gt;\
+            &lt;div id=&quot;page-head&quot;&gt;&lt;/div&gt;\
         &lt;/div&gt;\
         &lt;div id=&quot;page-content&quot;&gt;\
         &lt;/div&gt;\
@@ -1446,7 +1451,7 @@ Arnold Simulator
             &lt;&lt;toggleclass &quot;#page-container&quot; &quot;hidden&quot;&gt;&gt;
         &lt;&lt;/if&gt;&gt;
         &lt;&lt;set $currentPage to _args[0]&gt;&gt;
-        &lt;&lt;replace &quot;#page-tabs&quot;&gt;&gt;
+        &lt;&lt;replace &quot;#page-head&quot;&gt;&gt;
             &lt;&lt;print _args[0]&gt;&gt;
         &lt;&lt;/replace&gt;&gt;
         &lt;&lt;replace &quot;#page-content&quot;&gt;&gt;

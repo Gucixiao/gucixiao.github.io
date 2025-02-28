@@ -1,6 +1,12 @@
 <!-- tag: Code-Passages -->
 <!-- StoryInit -->
 <StoryInit>
+    <<if Config.debug is false>>
+        /* 非测试情况下强制每次都从Title开始 */
+        <<goto "Title">>
+    <</if>>
+
+
     /* 删除自带的menu边栏按钮 */
     <<remove "#menu-core">>
 
@@ -138,7 +144,7 @@
     <div id="page-container" class="hidden">\
         <div id="page-title">\
             <<button " ">><<toggleclass "#page-container" "hidden">><</button>>\
-            <div id="page-tabs">\</div>\
+            <div id="page-head"></div>\
         </div>\
         <div id="page-content">\
         </div>\
@@ -348,7 +354,7 @@
             <<toggleclass "#page-container" "hidden">>
         <</if>>
         <<set $currentPage to _args[0]>>
-        <<replace "#page-tabs">>
+        <<replace "#page-head">>
             <<print _args[0]>>
         <</replace>>
         <<replace "#page-content">>
