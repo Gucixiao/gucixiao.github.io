@@ -17,3 +17,8 @@
 ### The Speech Box System (macro and css)
 
 [The speech box system by chapel, for sugarcube 2](https://twinelab.net/custom-macros-for-sugarcube-2/#/speech-box-system)
+
+### The Dialog API Macro Set
+
+[The Dialog API macro set by chapel, for sugarcube 2](https://twinelab.net/custom-macros-for-sugarcube-2/#/./dialog-api-macro-set?id=the-dialog-api-macro-set)
+

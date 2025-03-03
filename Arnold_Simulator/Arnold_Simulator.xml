@@ -6,7 +6,6 @@
         <<goto "Title">>
     <</if>>
 
-
     /* 删除自带的menu边栏按钮 */
     <<remove "#menu-core">>
 
@@ -158,7 +157,28 @@
 </StoryCaption>
 
 <!-- PassageHeader -->
-/* 暂时无内容 */
+<!-- 这里nobr不管用的 -->
+<PassageHeader>
+    <nobr>
+        /* 首先检测健康是不是低于0，是的话会死掉 */\
+        <<if $arnold.health <= 0>>
+            <<goto "BE-Death">>
+        /* 最后检测健康是不是过低，过低的话有概率昏倒 */\
+        <<elseif $arnold.health <= 30>>
+            <<if random(1, 100) <= 10>>
+                <<goto "Faint">>
+            /* 没昏倒的话，会昏昏沉沉并加疲劳，加压力 */\
+            <<else>>
+                <<set $arnold.fatigue += 50>>
+                <<set $arnold.stress += 50>>
+            <</if>>
+        <</if>>\
+        /* 然后检测疲劳和压力有没有满，满了就昏倒 */\
+        <<if $arnold.fatigue >= 1000 or $arnold.stress >= 1000>>
+            <<goto "Faint">>
+        <</if>>\
+    </nobr>
+</PassageHeader>
 
 <!-- PassageFooter -->
 <PassageFooter>
@@ -360,30 +380,10 @@
     <<if $arnold.health > 100>>
         <<set $arnold.health to 100>>
     <</if>>
-
-    /* 首先检测健康是不是低于0，是的话会死掉 */
-    <<if $arnold.health <= 0>>
-        <<goto "BE-Death">>
-    /* 最后检测健康是不是过低，过低的话有概率昏倒 */
-    <<elseif $arnold.health <= 30>>
-        <<if random(1, 100) <= 10>>
-            <<goto "Faint">>
-        /* 没昏倒的话，会昏昏沉沉并加疲劳，加压力 */
-        <<else>>
-            <<set $arnold.fatigue += 50>>
-            <<set $arnold.stress += 50>>
-        <</if>>
-    <</if>>
-    
-    /* 然后检测疲劳和压力有没有满，满了就昏倒 */
-    <<if $arnold.fatigue >= 1000 or $arnold.stress >= 1000>>
-        <<goto "Faint">>
-    <<else>>
-        /* 都没有的话才刷新 */
-        <<replace "#story-caption">>
-            <<include "StoryCaption">>
-        <</replace>>
-    <</if>>
+    /* 然后刷新边栏 */
+    <<replace "#story-caption">>
+        <<include "StoryCaption">>
+    <</replace>>
     <</widget>>
 <</nobr>>    
 
@@ -421,6 +421,178 @@
         <</replace>>
     <</widget>> 
 <</nobr>>
+
+<!-- menuSave -->
+<<nobr>>
+    <<widget "menuSave">>
+        /* <<menuSave "save" 1>> */
+        /* 先初始化各种变量： */
+        <<set _desc to "">>
+        <<set _date to "">>
+        <<set _time to new Date().toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"})>>
+        <<set _passage to passage()>>
+        <<set _meta to {time: _time, passage: _passage}>>
+        <<set _id to "#save" + String(_args[1])>>   
+        /* 如果是自动存档 */
+        <<if _args[1] is "A">>
+            <<set _arg to 0>>
+            /* 检查自动存档里有没有东西 */
+            <<if Save.browser.auto.has(_arg)>>
+                <<switch _args[0]>>
+                    <<case "load">>
+                        <<run Save.browser.auto.load(_arg)>>
+                        <<set _get to Save.browser.auto.get(_arg)>>
+                        <<set _desc to _get.desc>>
+                        <<set _date to _get.metadata.time>>
+                        <<goto _get.metadata.passage>>
+                    <<case "delete">>
+                        <<dialog "注意">>
+                            是否删除当前存档？
+                            <br/>
+                            <<button "删除">>
+                            <<run Save.browser.auto.delete(_arg)>><<dialogclose>>
+                            <</button>>
+                        <</dialog>>      
+                <</switch>>
+            <</if>>
+        <<elseif Save.browser.slot.has(_args[1])>>
+            /* 如果不是自动存档，先检查存档里有没有东西 */
+            <<switch _args[0]>>
+                <<case "save">>
+                    <<dialog "注意">>
+                        当前存档栏位已经有存档，是否覆盖？
+                        <br/>
+                        <<button "覆盖">>
+                            <<run Save.browser.slot.save(_args[1], null, _meta)>>
+                            <<set _get to Save.browser.slot.get(_args[1])>>
+                            <<set _desc to _get.desc>>
+                            <<set _date to _get.metadata.time>>
+                            <<replace _id>>\
+                                <<print "<div>" + _desc + "</div>">>
+                                <<print "<div>" + _date + "</div>">>
+                            <</replace>>
+                            <<dialogclose>>
+                        <</button>>
+                    <</dialog>>
+                <<case "load">>
+                /* 读取 */
+                    <<run Save.browser.slot.load(_args[1])>>
+                    <<set _get to Save.browser.slot.get(_args[1])>>
+                    <<set _desc to _get.desc>>
+                    <<set _date to _get.metadata.time>>
+                    <<goto _get.metadata.passage>>
+                <<case "delete">>
+                /* 删除 */
+                    <<dialog "注意">>
+                        是否删除当前存档？
+                        <br/>
+                        <<button "删除">>
+                            <<run Save.browser.slot.delete(_args[1])>>
+                            <<replace _id>>\
+                                <<print "<div>" + _desc + "</div>">>
+                                <<print "<div>" + _date + "</div>">>
+                            <</replace>>
+                            <<dialogclose>>
+                        <</button>>
+                    <</dialog>>            
+            <</switch>>
+        <<elseif _args[0] is "save">>
+            <<run Save.browser.slot.save(_args[1], null, _meta)>>
+            <<set _get to Save.browser.slot.get(_args[1])>>
+            <<set _desc to _get.desc>>
+            <<set _date to _get.metadata.time>>
+            <<replace _id>>\
+                <<print "<div>" + _desc + "</div>">>
+                <<print "<div>" + _date + "</div>">>
+            <</replace>>
+        <</if>>   
+    <</widget>>
+<</nobr>>
+
+<!-- saveList -->
+<<nobr>>
+    <<widget "saveList">>
+        /* 先检查是不是自动存档 */
+        <<set _desc to "">>
+        <<set _date to "">>
+        <<if _args[0] is "A">>
+            <<set _arg to 0>>
+            <<if Save.browser.auto.has(_arg)>>
+                <<set _get to Save.browser.auto.get(_arg)>>
+                <<set _desc to _get.desc>>
+                <<set _date to _get.metadata.time>>
+            <</if>>
+        <<else>>
+            <<set _arg to _args[0]>>
+            /* 先检查存档里有没有东西 */
+            <<if Save.browser.slot.has(_args[0])>>
+                /* 如果有 */
+                <<set _get to Save.browser.slot.get(_arg)>>
+                    <<set _desc to _get.desc>>
+                    <<set _date to _get.metadata.time>>             
+            <</if>>
+        <</if>>
+        <<print "<div>" + _desc + "</div>">>
+        <<print "<div>" + _date + "</div>">>
+    <</widget>>
+<</nobr>>
+
+
+/* ==============================================*/
+/* tag: pages */
+/* ==============================================*/
+/* saves-page */
+<div id="page-content">
+    <ul id="page-tabs" style="display:none;">
+
+    </ul>
+    <div id="content-saves" class="page-content">
+        <ul id="saves-list">
+            <li class="save">
+                <<link "读取">><<menuSave "load" "A">><</link>>
+                <div id="saveA" class="save-info">
+                <<saveList A>></div>
+                <<link "删除">><<menuSave "delete" A>><</link>>
+            </li>
+            <li class="save">
+                <<link "保存">><<menuSave "save" 0>><</link>>
+                <<link "读取">><<menuSave "load" 0>><</link>>
+                <div id="save0" class="save-info">
+                <<saveList 0>></div>
+                <<link "删除">><<menuSave "delete" 0>><</link>>
+            </li>
+            <li class="save">
+                <<link "保存">><<menuSave "save" 1>><</link>>
+                <<link "读取">><<menuSave "load" 1>><</link>>
+                <div id="save1" class="save-info">
+                <<saveList 1>></div>
+                <<link "删除">><<menuSave "delete" 1>><</link>>
+            </li>
+            <li class="save">
+                <<link "保存">><<menuSave "save" 2>><</link>>
+                <<link "读取">><<menuSave "load" 2>><</link>>
+                <div id="save2" class="save-info">
+                <<saveList 2>></div>
+                <<link "删除">><<menuSave "delete" 2>><</link>>
+            </li>
+            <li class="save">
+                <<link "保存">><<menuSave "save" 3>><</link>>
+                <<link "读取">><<menuSave "load" 3>><</link>>
+                <div id="save3" class="save-info">
+                <<saveList 3>></div>
+                <<link "删除">><<menuSave "delete" 3>><</link>>
+            </li>
+            <li class="save">
+                <<link "保存">><<menuSave "save" 4>><</link>>
+                <<link "读取">><<menuSave "load" 4>><</link>>
+                <div id="save4" class="save-info">
+                <<saveList 4>></div>
+                <<link "删除">><<menuSave "delete" 4>><</link>>
+            </li>
+        </ul>
+    </div>
+</div>
+
 
 /* ==================================================================== */
 /* tag: event */
@@ -461,7 +633,9 @@
 
 
 <<link "醒来 (3:00)">>
-        <<replace "#faint" t8n>>test<</replace>>
+        <<replace "#faint" t8n>>
+            你醒了过来。
+        <</replace>>
 <</link>>
 @@
 

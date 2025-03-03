@@ -1,17 +1,50 @@
-// Stop autosave
-Config.saves.maxAutoSaves = 0;
-
+// set save slot number to 5
+Config.saves.maxSlotSaves = 5;
+// set max autosave slot to 1
+Config.saves.maxAutoSaves = 1;
 // Limit the history to 20
 Config.history.maxStates = 20;
-
-// Set clicking event to close the pages
-$(document).click(function (e) {
-    // Check if the click is outside of #menu-button or #page-container
-    if (!$(e.target).closest("#menu-button").length && !$(e.target).closest("#page-container").length) {
-        $("#page-container").addClass("hidden");
+// 禁止自动存档（只能在我手动允许的地方存档
+Config.saves.isAllowed = function (saveType) {
+	if (saveType === Save.Type.Auto) {
+		return false;
+	}
+	return true;
+};
+//创建自动存档的宏
+Macro.add("autosave", {
+    handler() {
+        // 储存原本的存档规则
+        const oldSaveRule = Config.saves.isAllowed;
+        // 临时允许自动存档
+        Config.saves.isAllowed = true;
+        // 手动存档
+        let d = new Date().toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"});
+        let m = {time: d};
+        Save.browser.auto.save(null, m.time);
+        // 恢复原来的规则
+        Config.saves.isAllowed = oldSaveRule;
+        console.log("已创建自动存档");
     }
 });
 
+
+// 设置存档的描述显示是passage的前20个字符
+Config.saves.descriptions = function (saveType) {
+    return Story.get(passage()).processText().slice(0, 20) + "...";
+};
+
+// Set clicking event to close the pages
+// 点击任何不是menu button 或者 dialog 的地方都关闭page container
+$(document).click(function (e) {
+    // 检查点击是否发生在 #menu-button、#page-container 或 #ui-dialog 之外
+    if (!$(e.target).closest("#menu-button, #page-container, #ui-dialog").length) {
+        $("#page-container").addClass("hidden");
+    }
+});
+$("#ui-dialog-body").click(function (e) {
+    e.stopPropagation();
+});
 
 //点击任何位于.passage的链接都将触发<<refreshSidbar>> widget
 $(document).click(function (e) {

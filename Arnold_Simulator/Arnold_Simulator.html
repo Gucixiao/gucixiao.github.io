@@ -179,6 +179,7 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
     max-width: 100%;
 }
 
+
 /* ==============================
 		icon and button
 ================================= */
@@ -256,7 +257,7 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
     border: 1px solid #555;
     border-radius: 10px;
     padding: 1em;
-    overflow: auto;
+    overflow: hidden;
 }
 @media (max-width: 960px) {
     #page-container {
@@ -271,12 +272,11 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
         border: 1px solid #555;
         border-radius: 5px;
         padding: 1em;
-        overflow: auto;
+        overflow: hidden;
     }
 }  
 #page-container #page-title {
-    margin-bottom: 1em;
-    padding-top: 0.5em;
+    padding-top: 0.5em; 
     padding-left: 0.5em;
     padding-bottom: 0.5em;
     font-size: 1.5em;
@@ -296,6 +296,7 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
     color: white;
     border-radius: 5px;
 }
+/* the close button */
 #page-title button::before {
     content: "\f00d";
     position: absolute;
@@ -303,6 +304,75 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
     left: 0;
     transform: translate(55%, 35%);
 }
+/* general page content */
+#page-content {
+    height: calc(100% - 4em);
+    overflow: hidden;
+    font-size: 1em;
+    line-height: 1.5em;
+    color: #fff;
+    border-radius: 0px 0px 5px 5px;
+    border: 1px solid #555;
+    border-top: none;
+}
+/* page content list */
+#page-content ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0.5em 0;
+}
+/* page content buttons */
+#page-content ul a {
+    text-align: center;
+    width: 4em;
+    background-color: #222;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 0.6em;
+    margin: 0.2em;
+}
+#page-content ul a:hover {
+    text-decoration: none;
+    background-color: #333;
+    border: 1px solid #fff;
+}
+/* this is for all pages that are #content-[] */
+.page-content {
+    padding: 0 0.5em;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+/* saves-page css */
+.save {
+    display: flex;
+    padding: 0.5em;
+    border: 1px solid #555;
+    border-left: none;
+    border-right: none;
+}
+.save-info {
+    display: inline-block;
+    max-height: 1.5em;
+    overflow: hidden;
+    flex-grow: 1;
+    padding: 0.7em 0;
+}
+.save-info div {
+    padding: 0 1em;
+    display: inline-block;
+}
+.save-info div:last-child {
+    text-align: right;
+    float: right;
+}
+
+/* tabs */
+#page-tabs {
+    height: 1.5em;
+    padding: 0.5em;
+    border-bottom: 1px solid #555;
+}
+
 /* ==============================
 		imported codes
 ================================= */
@@ -390,20 +460,53 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
 .say > p:last-of-type {
     padding: 0.5em;
     margin: 0;
-}</style><script role="script" id="twine-user-script" type="text/twine-javascript">// Stop autosave
-Config.saves.maxAutoSaves = 0;
-
+}</style><script role="script" id="twine-user-script" type="text/twine-javascript">// set save slot number to 5
+Config.saves.maxSlotSaves = 5;
+// set max autosave slot to 1
+Config.saves.maxAutoSaves = 1;
 // Limit the history to 20
 Config.history.maxStates = 20;
-
-// Set clicking event to close the pages
-$(document).click(function (e) {
-    // Check if the click is outside of #menu-button or #page-container
-    if (!$(e.target).closest("#menu-button").length && !$(e.target).closest("#page-container").length) {
-        $("#page-container").addClass("hidden");
+// 禁止自动存档（只能在我手动允许的地方存档
+Config.saves.isAllowed = function (saveType) {
+	if (saveType === Save.Type.Auto) {
+		return false;
+	}
+	return true;
+};
+//创建自动存档的宏
+Macro.add("autosave", {
+    handler() {
+        // 储存原本的存档规则
+        const oldSaveRule = Config.saves.isAllowed;
+        // 临时允许自动存档
+        Config.saves.isAllowed = true;
+        // 手动存档
+        let d = new Date().toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"});
+        let m = {time: d};
+        Save.browser.auto.save(null, m.time);
+        // 恢复原来的规则
+        Config.saves.isAllowed = oldSaveRule;
+        console.log("已创建自动存档");
     }
 });
 
+
+// 设置存档的描述显示是passage的前20个字符
+Config.saves.descriptions = function (saveType) {
+    return Story.get(passage()).processText().slice(0, 20) + "...";
+};
+
+// Set clicking event to close the pages
+// 点击任何不是menu button 或者 dialog 的地方都关闭page container
+$(document).click(function (e) {
+    // 检查点击是否发生在 #menu-button、#page-container 或 #ui-dialog 之外
+    if (!$(e.target).closest("#menu-button, #page-container, #ui-dialog").length) {
+        $("#page-container").addClass("hidden");
+    }
+});
+$("#ui-dialog-body").click(function (e) {
+    e.stopPropagation();
+});
 
 //点击任何位于.passage的链接都将触发<<refreshSidbar>> widget
 $(document).click(function (e) {
@@ -411,6 +514,7 @@ $(document).click(function (e) {
         $.wiki('<<refreshSidebar>>')
     }
 });
+
 /* ============================================ */
 /* imported js */
 /*=====================================================*/
@@ -1090,7 +1194,8 @@ Macro.add('dialogclose', {
     handler : function () {
         Dialog.close();
     } 
-});</script><tw-tag name="startup" color="none"></tw-tag><tw-tag name="header" color="blue"></tw-tag><tw-tag name="footer" color="green"></tw-tag><tw-tag name="Code-Passages" color="blue"></tw-tag><tw-tag name="text-passages" color="purple"></tw-tag><tw-tag name="widget" color="purple"></tw-tag><tw-tag name="nobr" color="green"></tw-tag><tw-tag name="event" color="orange"></tw-tag><tw-tag name="Ending" color="red"></tw-tag><tw-tag name="content" color="yellow"></tw-tag><tw-tag name="pages" color="green"></tw-tag><tw-passagedata pid="1" name="Title" tags="" position="550,300" size="200,100">/* 隐藏侧边栏的banner直到非title */\
+});</script><tw-tag name="startup" color="none"></tw-tag><tw-tag name="header" color="blue"></tw-tag><tw-tag name="footer" color="green"></tw-tag><tw-tag name="Code-Passages" color="blue"></tw-tag><tw-tag name="text-passages" color="purple"></tw-tag><tw-tag name="widget" color="purple"></tw-tag><tw-tag name="event" color="orange"></tw-tag><tw-tag name="Ending" color="red"></tw-tag><tw-tag name="content" color="yellow"></tw-tag><tw-tag name="pages" color="green"></tw-tag><tw-tag name="autosave" color="orange"></tw-tag><tw-passagedata pid="1" name="Title" tags="" position="550,300" size="200,100">/* 标题界面                                  */\
+/* 隐藏侧边栏的banner直到非title */\
 &lt;&lt;addclass &quot;#story-banner&quot; &quot;hidden&quot;&gt;&gt;\
 \@@.banner;
 &lt;img src=&quot;img/banner.png&quot;&gt;
@@ -1098,11 +1203,10 @@ Macro.add('dialogclose', {
 ----
 
 &#39;&#39;Changelog:&#39;&#39;
-* 2025-02-27
-&gt;- 左侧边栏按钮现在可以点了，但是还啥内容也没有
-&gt;- 我真服了，跟个菜单栏搏斗五小时
-&gt;- 下一步是做菜单栏，包括保存、读取、设置等功能
-&gt;- 阿诺德的属性值调整，上限是1000了（健康仍然是100）
+* 2025-03-02
+&gt;- 左侧边栏按钮的存档功能现在做好了。
+&gt;- 我真服了，跟个存档功能搏斗三天了，奶奶滴。
+&gt;- 现在在做存档的导入导出功能。
 
 ----
 &lt;&lt;button &quot;开始游戏&quot; &quot;Intro&quot;&gt;&gt;
@@ -1174,7 +1278,6 @@ Arnold Simulator
         /* 非测试情况下强制每次都从Title开始 */
         &lt;&lt;goto &quot;Title&quot;&gt;&gt;
     &lt;&lt;/if&gt;&gt;
-
 
     /* 删除自带的menu边栏按钮 */
     &lt;&lt;remove &quot;#menu-core&quot;&gt;&gt;
@@ -1269,8 +1372,7 @@ Arnold Simulator
   &lt;img src=&quot;img/storybanner/border.png&quot; id=&quot;banner-border&quot;&gt;\
   &lt;img src=&quot;img/storybanner/base.png&quot; id=&quot;banner-base&quot;&gt;\
   &lt;img src=&quot;img/storybanner/cloth_default.png&quot; id=&quot;banner-cloth&quot;&gt;\
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="9" name="IntroBedroom" tags="" position="600,425" size="100,100">
-你回到自己的卧室。
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="9" name="IntroBedroom" tags="" position="600,425" size="100,100">你回到自己的卧室。
 
 
 
@@ -1295,8 +1397,15 @@ Arnold Simulator
 	&lt;&lt;set $arnold.fatigue += 50&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
-&lt;&lt;link &quot;add min 50&quot;&gt;&gt;
+&lt;div id=&quot;save100&quot;&gt;this is the test div&lt;/div&gt;
 
+&lt;&lt;set _id to (&quot;#save&quot; + String(100))&gt;&gt;
+&lt;&lt;print _id&gt;&gt;
+
+&lt;&lt;link &quot;test&quot;&gt;&gt;
+	&lt;&lt;replace _id&gt;&gt;
+		if replace is successful
+	&lt;&lt;/replace&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
 [[Test]]</tw-passagedata><tw-passagedata pid="14" name="Intro2" tags="" position="475,425" size="100,100">&lt;&lt;nobr&gt;&gt;
@@ -1345,7 +1454,7 @@ Arnold Simulator
     &lt;&lt;replace &quot;#IntroLeave&quot;&gt;&gt;@@color:green;//所长示意你可以离开了//&lt;&lt;/replace&gt;&gt;&lt;&lt;/link&gt;&gt;\
 @@
 @@#IntroLeave;color:grey;//你还没签字，所长不会让你离开的//@@
-</tw-passagedata><tw-passagedata pid="15" name="time" tags="widget" position="1250,75" size="100,100">&lt;&lt;nobr&gt;&gt;
+</tw-passagedata><tw-passagedata pid="15" name="time" tags="widget" position="1250,225" size="100,100">&lt;&lt;nobr&gt;&gt;
     &lt;&lt;widget &quot;time&quot;&gt;&gt;
         /* 满60分钟加1小时 */
         &lt;&lt;if $time.minute &gt;= 60&gt;&gt;
@@ -1385,11 +1494,11 @@ Arnold Simulator
         &lt;&lt;/if&gt;&gt;
         $time.year年 &lt;&lt;print $display.month[$time.month]&gt;&gt; $time.day日 星期&lt;&lt;print $display.week[$time.week]&gt;&gt; $display.hour:$display.minute
     &lt;&lt;/widget&gt;&gt;
-&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="bannerTooltip" tags="widget" position="1250,300" size="100,100">&lt;&lt;nobr&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="bannerTooltip" tags="widget" position="1250,150" size="100,100">&lt;&lt;nobr&gt;&gt;
     &lt;&lt;widget &quot;bannerTooltip&quot;&gt;&gt;
         你在室内。温度很舒适。你穿着你的白大褂。
     &lt;&lt;/widget&gt;&gt;
-&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="bannerImg" tags="widget" position="1250,225" size="100,100"></tw-passagedata><tw-passagedata pid="18" name="statBar" tags="widget" position="1250,150" size="100,100">&lt;&lt;nobr&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="bannerImg" tags="widget" position="1250,75" size="100,100"></tw-passagedata><tw-passagedata pid="18" name="statBar" tags="widget" position="1250,300" size="100,100">&lt;&lt;nobr&gt;&gt;
     &lt;&lt;widget &quot;statBar&quot;&gt;&gt;
         &lt;&lt;if $arnold.fatigue is 0&gt;&gt;
             &lt;&lt;set _fatigue to &quot;你感觉体力充沛&quot;&gt;&gt;
@@ -1512,7 +1621,9 @@ Arnold Simulator
 
 
 &lt;&lt;link &quot;醒来 (3:00)&quot;&gt;&gt;
-        &lt;&lt;replace &quot;#faint&quot; t8n&gt;&gt;test&lt;&lt;/replace&gt;&gt;
+        &lt;&lt;replace &quot;#faint&quot; t8n&gt;&gt;
+            你醒了过来。
+        &lt;&lt;/replace&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 @@</tw-passagedata><tw-passagedata pid="20" name="BE-Death" tags="Ending" position="200,75" size="100,100">你死了。</tw-passagedata><tw-passagedata pid="21" name="refreshSidebar" tags="widget" position="1125,75" size="100,100">&lt;&lt;nobr&gt;&gt;
     &lt;&lt;widget &quot;refreshSidebar&quot;&gt;&gt;
@@ -1529,32 +1640,12 @@ Arnold Simulator
     &lt;&lt;if $arnold.health &gt; 100&gt;&gt;
         &lt;&lt;set $arnold.health to 100&gt;&gt;
     &lt;&lt;/if&gt;&gt;
-
-    /* 首先检测健康是不是低于0，是的话会死掉 */
-    &lt;&lt;if $arnold.health &lt;= 0&gt;&gt;
-        &lt;&lt;goto &quot;BE-Death&quot;&gt;&gt;
-    /* 最后检测健康是不是过低，过低的话有概率昏倒 */
-    &lt;&lt;elseif $arnold.health &lt;= 30&gt;&gt;
-        &lt;&lt;if random(1, 100) &lt;= 10&gt;&gt;
-            &lt;&lt;goto &quot;Faint&quot;&gt;&gt;
-        /* 没昏倒的话，会昏昏沉沉并加疲劳，加压力 */
-        &lt;&lt;else&gt;&gt;
-            &lt;&lt;set $arnold.fatigue += 50&gt;&gt;
-            &lt;&lt;set $arnold.stress += 50&gt;&gt;
-        &lt;&lt;/if&gt;&gt;
-    &lt;&lt;/if&gt;&gt;
-    
-    /* 然后检测疲劳和压力有没有满，满了就昏倒 */
-    &lt;&lt;if $arnold.fatigue &gt;= 1000 or $arnold.stress &gt;= 1000&gt;&gt;
-        &lt;&lt;goto &quot;Faint&quot;&gt;&gt;
-    &lt;&lt;else&gt;&gt;
-        /* 都没有的话才刷新 */
-        &lt;&lt;replace &quot;#story-caption&quot;&gt;&gt;
-            &lt;&lt;include &quot;StoryCaption&quot;&gt;&gt;
-        &lt;&lt;/replace&gt;&gt;
-    &lt;&lt;/if&gt;&gt;
+    /* 然后刷新边栏 */
+    &lt;&lt;replace &quot;#story-caption&quot;&gt;&gt;
+        &lt;&lt;include &quot;StoryCaption&quot;&gt;&gt;
+    &lt;&lt;/replace&gt;&gt;
     &lt;&lt;/widget&gt;&gt;
-&lt;&lt;/nobr&gt;&gt;    </tw-passagedata><tw-passagedata pid="22" name="PassageFooter" tags="Code-Passages" position="75,650" size="100,100">    /* 用来搭建菜单显示的框架 */
+&lt;&lt;/nobr&gt;&gt; </tw-passagedata><tw-passagedata pid="22" name="PassageFooter" tags="Code-Passages" position="75,650" size="100,100">    /* 用来搭建菜单显示的框架 */
     &lt;div id=&quot;page-container&quot; class=&quot;hidden&quot;&gt;\
         &lt;div id=&quot;page-title&quot;&gt;\
             &lt;&lt;button &quot; &quot;&gt;&gt;&lt;&lt;toggleclass &quot;#page-container&quot; &quot;hidden&quot;&gt;&gt;&lt;&lt;/button&gt;&gt;\
@@ -1594,7 +1685,71 @@ Arnold Simulator
             &lt;&lt;/switch&gt;&gt;
         &lt;&lt;/replace&gt;&gt;
     &lt;&lt;/widget&gt;&gt; 
-&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="24" name="stat-page" tags="pages" position="1000,75" size="100,100"></tw-passagedata><tw-passagedata pid="25" name="social-page" tags="pages" position="1000,150" size="100,100"></tw-passagedata><tw-passagedata pid="26" name="inventory-page" tags="pages" position="1000,225" size="100,100"></tw-passagedata><tw-passagedata pid="27" name="journal-page" tags="pages" position="1000,300" size="100,100"></tw-passagedata><tw-passagedata pid="28" name="settings-page" tags="pages" position="1000,450" size="100,100"></tw-passagedata><tw-passagedata pid="29" name="achievements-page" tags="pages" position="1000,525" size="100,100"></tw-passagedata><tw-passagedata pid="30" name="saves-page" tags="pages" position="1000,375" size="100,100"></tw-passagedata><tw-passagedata pid="31" name="PassageHeader" tags="Code-Passages" position="75,575" size="100,100"></tw-passagedata><tw-passagedata pid="32" name="addTime" tags="widget" position="1125,225" size="100,100">&lt;&lt;nobr&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="24" name="stat-page" tags="pages nobr" position="1000,75" size="100,100"></tw-passagedata><tw-passagedata pid="25" name="social-page" tags="pages nobr" position="1000,150" size="100,100"></tw-passagedata><tw-passagedata pid="26" name="inventory-page" tags="pages nobr" position="1000,225" size="100,100"></tw-passagedata><tw-passagedata pid="27" name="journal-page" tags="pages nobr" position="1000,300" size="100,100"></tw-passagedata><tw-passagedata pid="28" name="settings-page" tags="pages nobr" position="1000,450" size="100,100"></tw-passagedata><tw-passagedata pid="29" name="achievements-page" tags="pages nobr" position="1000,525" size="100,100"></tw-passagedata><tw-passagedata pid="30" name="saves-page" tags="pages nobr" position="1000,375" size="100,100">    &lt;ul id=&quot;page-tabs&quot; style=&quot;display:none;&quot;&gt;
+
+    &lt;/ul&gt;
+    &lt;div id=&quot;content-saves&quot; class=&quot;page-content&quot;&gt;
+        &lt;ul id=&quot;saves-list&quot;&gt;
+            &lt;li class=&quot;save&quot;&gt;
+                &lt;&lt;link &quot;读取&quot;&gt;&gt;&lt;&lt;menuSave &quot;load&quot; &quot;A&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;div id=&quot;saveA&quot; class=&quot;save-info&quot;&gt;
+                &lt;&lt;saveList A&gt;&gt;&lt;/div&gt;
+                &lt;&lt;link &quot;删除&quot;&gt;&gt;&lt;&lt;menuSave &quot;delete&quot; A&gt;&gt;&lt;&lt;/link&gt;&gt;
+            &lt;/li&gt;
+            &lt;li class=&quot;save&quot;&gt;
+                &lt;&lt;link &quot;保存&quot;&gt;&gt;&lt;&lt;menuSave &quot;save&quot; 0&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;&lt;link &quot;读取&quot;&gt;&gt;&lt;&lt;menuSave &quot;load&quot; 0&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;div id=&quot;save0&quot; class=&quot;save-info&quot;&gt;
+                &lt;&lt;saveList 0&gt;&gt;&lt;/div&gt;
+                &lt;&lt;link &quot;删除&quot;&gt;&gt;&lt;&lt;menuSave &quot;delete&quot; 0&gt;&gt;&lt;&lt;/link&gt;&gt;
+            &lt;/li&gt;
+            &lt;li class=&quot;save&quot;&gt;
+                &lt;&lt;link &quot;保存&quot;&gt;&gt;&lt;&lt;menuSave &quot;save&quot; 1&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;&lt;link &quot;读取&quot;&gt;&gt;&lt;&lt;menuSave &quot;load&quot; 1&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;div id=&quot;save1&quot; class=&quot;save-info&quot;&gt;
+                &lt;&lt;saveList 1&gt;&gt;&lt;/div&gt;
+                &lt;&lt;link &quot;删除&quot;&gt;&gt;&lt;&lt;menuSave &quot;delete&quot; 1&gt;&gt;&lt;&lt;/link&gt;&gt;
+            &lt;/li&gt;
+            &lt;li class=&quot;save&quot;&gt;
+                &lt;&lt;link &quot;保存&quot;&gt;&gt;&lt;&lt;menuSave &quot;save&quot; 2&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;&lt;link &quot;读取&quot;&gt;&gt;&lt;&lt;menuSave &quot;load&quot; 2&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;div id=&quot;save2&quot; class=&quot;save-info&quot;&gt;
+                &lt;&lt;saveList 2&gt;&gt;&lt;/div&gt;
+                &lt;&lt;link &quot;删除&quot;&gt;&gt;&lt;&lt;menuSave &quot;delete&quot; 2&gt;&gt;&lt;&lt;/link&gt;&gt;
+            &lt;/li&gt;
+            &lt;li class=&quot;save&quot;&gt;
+                &lt;&lt;link &quot;保存&quot;&gt;&gt;&lt;&lt;menuSave &quot;save&quot; 3&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;&lt;link &quot;读取&quot;&gt;&gt;&lt;&lt;menuSave &quot;load&quot; 3&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;div id=&quot;save3&quot; class=&quot;save-info&quot;&gt;
+                &lt;&lt;saveList 3&gt;&gt;&lt;/div&gt;
+                &lt;&lt;link &quot;删除&quot;&gt;&gt;&lt;&lt;menuSave &quot;delete&quot; 3&gt;&gt;&lt;&lt;/link&gt;&gt;
+            &lt;/li&gt;
+            &lt;li class=&quot;save&quot;&gt;
+                &lt;&lt;link &quot;保存&quot;&gt;&gt;&lt;&lt;menuSave &quot;save&quot; 4&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;&lt;link &quot;读取&quot;&gt;&gt;&lt;&lt;menuSave &quot;load&quot; 4&gt;&gt;&lt;&lt;/link&gt;&gt;
+                &lt;div id=&quot;save4&quot; class=&quot;save-info&quot;&gt;
+                &lt;&lt;saveList 4&gt;&gt;&lt;/div&gt;
+                &lt;&lt;link &quot;删除&quot;&gt;&gt;&lt;&lt;menuSave &quot;delete&quot; 4&gt;&gt;&lt;&lt;/link&gt;&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;</tw-passagedata><tw-passagedata pid="31" name="PassageHeader" tags="Code-Passages" position="75,575" size="100,100">        /* 首先检测健康是不是低于0，是的话会死掉 */\
+        &lt;&lt;if $arnold.health &lt;= 0&gt;&gt;
+            &lt;&lt;goto &quot;BE-Death&quot;&gt;&gt;
+        /* 最后检测健康是不是过低，过低的话有概率昏倒 */\
+        &lt;&lt;elseif $arnold.health &lt;= 30&gt;&gt;
+            &lt;&lt;if random(1, 100) &lt;= 10&gt;&gt;
+                &lt;&lt;goto &quot;Faint&quot;&gt;&gt;
+            /* 没昏倒的话，会昏昏沉沉并加疲劳，加压力 */\
+            &lt;&lt;else&gt;&gt;
+                &lt;&lt;set $arnold.fatigue += 50&gt;&gt;
+                &lt;&lt;set $arnold.stress += 50&gt;&gt;
+            &lt;&lt;/if&gt;&gt;
+        &lt;&lt;/if&gt;&gt;\
+        /* 然后检测疲劳和压力有没有满，满了就昏倒 */\
+        &lt;&lt;if $arnold.fatigue &gt;= 1000 or $arnold.stress &gt;= 1000&gt;&gt;
+            &lt;&lt;goto &quot;Faint&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="32" name="addTime" tags="widget" position="1125,225" size="100,100">&lt;&lt;nobr&gt;&gt;
     /* _args[0] 必须是 string，其他的必须是 number
     这里没有加报错的情况因为我懒，而且这些代码又不会有别人看 */
     &lt;&lt;widget &quot;addTime&quot;&gt;&gt;
@@ -1616,6 +1771,115 @@ Arnold Simulator
         &lt;&lt;elseif $arnold.stress &gt;= 500 and _args[0] is &quot;stress&quot;&gt;&gt;
             &lt;&lt;set $arnold.control -= _args[1]&gt;&gt;
         &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/widget&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="34" name="menuSave" tags="widget" position="1125,375" size="100,100">&lt;&lt;nobr&gt;&gt;
+    &lt;&lt;widget &quot;menuSave&quot;&gt;&gt;
+        /* &lt;&lt;menuSave &quot;save&quot; 1&gt;&gt; */
+        /* 先初始化各种变量： */
+        &lt;&lt;set _desc to &quot;&quot;&gt;&gt;
+        &lt;&lt;set _date to &quot;&quot;&gt;&gt;
+        &lt;&lt;set _time to new Date().toLocaleString(&quot;zh-CN&quot;, { year: &quot;numeric&quot;, month: &quot;2-digit&quot;, day: &quot;2-digit&quot;, hour: &quot;2-digit&quot;, minute: &quot;2-digit&quot;})&gt;&gt;
+        &lt;&lt;set _passage to passage()&gt;&gt;
+        &lt;&lt;set _meta to {time: _time, passage: _passage}&gt;&gt;
+        &lt;&lt;set _id to &quot;#save&quot; + String(_args[1])&gt;&gt;   
+        /* 如果是自动存档 */
+        &lt;&lt;if _args[1] is &quot;A&quot;&gt;&gt;
+            &lt;&lt;set _arg to 0&gt;&gt;
+            /* 检查自动存档里有没有东西 */
+            &lt;&lt;if Save.browser.auto.has(_arg)&gt;&gt;
+                &lt;&lt;switch _args[0]&gt;&gt;
+                    &lt;&lt;case &quot;load&quot;&gt;&gt;
+                        &lt;&lt;run Save.browser.auto.load(_arg)&gt;&gt;
+                        &lt;&lt;set _get to Save.browser.auto.get(_arg)&gt;&gt;
+                        &lt;&lt;set _desc to _get.desc&gt;&gt;
+                        &lt;&lt;set _date to _get.metadata.time&gt;&gt;
+                        &lt;&lt;goto _get.metadata.passage&gt;&gt;
+                    &lt;&lt;case &quot;delete&quot;&gt;&gt;
+                        &lt;&lt;dialog &quot;注意&quot;&gt;&gt;
+                            是否删除当前存档？
+                            &lt;br/&gt;
+                            &lt;&lt;button &quot;删除&quot;&gt;&gt;
+                            &lt;&lt;run Save.browser.auto.delete(_arg)&gt;&gt;&lt;&lt;dialogclose&gt;&gt;
+                            &lt;&lt;/button&gt;&gt;
+                        &lt;&lt;/dialog&gt;&gt;      
+                &lt;&lt;/switch&gt;&gt;
+            &lt;&lt;/if&gt;&gt;
+        &lt;&lt;elseif Save.browser.slot.has(_args[1])&gt;&gt;
+            /* 如果不是自动存档，先检查存档里有没有东西 */
+            &lt;&lt;switch _args[0]&gt;&gt;
+                &lt;&lt;case &quot;save&quot;&gt;&gt;
+                    &lt;&lt;dialog &quot;注意&quot;&gt;&gt;
+                        当前存档栏位已经有存档，是否覆盖？
+                        &lt;br/&gt;
+                        &lt;&lt;button &quot;覆盖&quot;&gt;&gt;
+                            &lt;&lt;run Save.browser.slot.save(_args[1], null, _meta)&gt;&gt;
+                            &lt;&lt;set _get to Save.browser.slot.get(_args[1])&gt;&gt;
+                            &lt;&lt;set _desc to _get.desc&gt;&gt;
+                            &lt;&lt;set _date to _get.metadata.time&gt;&gt;
+                            &lt;&lt;replace _id&gt;&gt;\
+                                &lt;&lt;print &quot;&lt;div&gt;&quot; + _desc + &quot;&lt;/div&gt;&quot;&gt;&gt;
+                                &lt;&lt;print &quot;&lt;div&gt;&quot; + _date + &quot;&lt;/div&gt;&quot;&gt;&gt;
+                            &lt;&lt;/replace&gt;&gt;
+                            &lt;&lt;dialogclose&gt;&gt;
+                        &lt;&lt;/button&gt;&gt;
+                    &lt;&lt;/dialog&gt;&gt;
+                &lt;&lt;case &quot;load&quot;&gt;&gt;
+                /* 读取 */
+                    &lt;&lt;run Save.browser.slot.load(_args[1])&gt;&gt;
+                    &lt;&lt;set _get to Save.browser.slot.get(_args[1])&gt;&gt;
+                    &lt;&lt;set _desc to _get.desc&gt;&gt;
+                    &lt;&lt;set _date to _get.metadata.time&gt;&gt;
+                    &lt;&lt;goto _get.metadata.passage&gt;&gt;
+                &lt;&lt;case &quot;delete&quot;&gt;&gt;
+                /* 删除 */
+                    &lt;&lt;dialog &quot;注意&quot;&gt;&gt;
+                        是否删除当前存档？
+                        &lt;br/&gt;
+                        &lt;&lt;button &quot;删除&quot;&gt;&gt;
+                            &lt;&lt;run Save.browser.slot.delete(_args[1])&gt;&gt;
+                            &lt;&lt;replace _id&gt;&gt;\
+                                &lt;&lt;print &quot;&lt;div&gt;&quot; + _desc + &quot;&lt;/div&gt;&quot;&gt;&gt;
+                                &lt;&lt;print &quot;&lt;div&gt;&quot; + _date + &quot;&lt;/div&gt;&quot;&gt;&gt;
+                            &lt;&lt;/replace&gt;&gt;
+                            &lt;&lt;dialogclose&gt;&gt;
+                        &lt;&lt;/button&gt;&gt;
+                    &lt;&lt;/dialog&gt;&gt;            
+            &lt;&lt;/switch&gt;&gt;
+        &lt;&lt;elseif _args[0] is &quot;save&quot;&gt;&gt;
+            &lt;&lt;run Save.browser.slot.save(_args[1], null, _meta)&gt;&gt;
+            &lt;&lt;set _get to Save.browser.slot.get(_args[1])&gt;&gt;
+            &lt;&lt;set _desc to _get.desc&gt;&gt;
+            &lt;&lt;set _date to _get.metadata.time&gt;&gt;
+            &lt;&lt;replace _id&gt;&gt;\
+                &lt;&lt;print &quot;&lt;div&gt;&quot; + _desc + &quot;&lt;/div&gt;&quot;&gt;&gt;
+                &lt;&lt;print &quot;&lt;div&gt;&quot; + _date + &quot;&lt;/div&gt;&quot;&gt;&gt;
+            &lt;&lt;/replace&gt;&gt;
+        &lt;&lt;/if&gt;&gt;   
+    &lt;&lt;/widget&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="35" name="saveList" tags="widget" position="1250,375" size="100,100">&lt;&lt;nobr&gt;&gt;
+    &lt;&lt;widget &quot;saveList&quot;&gt;&gt;
+        /* 先检查是不是自动存档 */
+        &lt;&lt;set _desc to &quot;&quot;&gt;&gt;
+        &lt;&lt;set _date to &quot;&quot;&gt;&gt;
+        &lt;&lt;if _args[0] is &quot;A&quot;&gt;&gt;
+            &lt;&lt;set _arg to 0&gt;&gt;
+            &lt;&lt;if Save.browser.auto.has(_arg)&gt;&gt;
+                &lt;&lt;set _get to Save.browser.auto.get(_arg)&gt;&gt;
+                &lt;&lt;set _desc to _get.desc&gt;&gt;
+                &lt;&lt;set _date to _get.metadata.time&gt;&gt;
+            &lt;&lt;/if&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+            &lt;&lt;set _arg to _args[0]&gt;&gt;
+            /* 先检查存档里有没有东西 */
+            &lt;&lt;if Save.browser.slot.has(_args[0])&gt;&gt;
+                /* 如果有 */
+                &lt;&lt;set _get to Save.browser.slot.get(_arg)&gt;&gt;
+                    &lt;&lt;set _desc to _get.desc&gt;&gt;
+                    &lt;&lt;set _date to _get.metadata.time&gt;&gt;             
+            &lt;&lt;/if&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+        &lt;&lt;print &quot;&lt;div&gt;&quot; + _desc + &quot;&lt;/div&gt;&quot;&gt;&gt;
+        &lt;&lt;print &quot;&lt;div&gt;&quot; + _date + &quot;&lt;/div&gt;&quot;&gt;&gt;
     &lt;&lt;/widget&gt;&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
