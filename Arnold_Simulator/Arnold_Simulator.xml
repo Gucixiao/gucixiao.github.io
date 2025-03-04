@@ -423,6 +423,11 @@
         /* 检查passage和tags,禁用保存 */
         <<if passage() is "Title" or tags().includes("events")>>
             <<run $("#page-content a:contains('保存')").css('pointer-events', 'none').css('color', 'gray')>>
+            <<prepend "#saves-list">>
+            	<div style="color:red;text-align:center;margin-bottom:0.5em;">
+                	当前页面不能保存！
+                </div>
+            <</prepend>>
         <<else>>
             <<run $("#page-content a:contains('保存')").css('pointer-events', 'auto').css('color', '');>>    
         <</if>>
