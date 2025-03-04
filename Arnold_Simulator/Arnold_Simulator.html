@@ -307,6 +307,7 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
 /* general page content */
 #page-content {
     height: calc(100% - 4em);
+    position: relative;
     overflow: hidden;
     font-size: 1em;
     line-height: 1.5em;
@@ -342,6 +343,11 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
     overflow-y: auto;
     overflow-x: hidden;
 }
+.page-bottom {
+    width: 100%;
+    padding: 0.5em;
+    display: flex;
+}
 /* saves-page css */
 .save {
     display: flex;
@@ -350,8 +356,11 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
     border-left: none;
     border-right: none;
 }
+.save a {
+    flex-shrink: 0;
+}
 .save-info {
-    display: inline-block;
+    display: flex;
     max-height: 1.5em;
     overflow: hidden;
     flex-grow: 1;
@@ -360,10 +369,11 @@ var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZa
 .save-info div {
     padding: 0 1em;
     display: inline-block;
+    flex-grow: 1;
 }
 .save-info div:last-child {
     text-align: right;
-    float: right;
+    flex-shrink: 0;
 }
 
 /* tabs */
@@ -466,24 +476,30 @@ Config.saves.maxSlotSaves = 5;
 Config.saves.maxAutoSaves = 1;
 // Limit the history to 20
 Config.history.maxStates = 20;
-// 禁止自动存档（只能在我手动允许的地方存档
+// 禁止自动存档（只能在我手动允许的地方存档）
 Config.saves.isAllowed = function (saveType) {
-	if (saveType === Save.Type.Auto) {
-		return false;
-	}
-	return true;
+    if (saveType === Save.Type.Auto) {
+        return false;
+    } 
+    return true;
 };
-//创建自动存档的宏
+// 创建自动存档的宏
 Macro.add("autosave", {
     handler() {
         // 储存原本的存档规则
-        const oldSaveRule = Config.saves.isAllowed;
+        const oldSaveRule = Config.saves.isAllowed;       
         // 临时允许自动存档
-        Config.saves.isAllowed = true;
+        Config.saves.isAllowed = function(saveType) {
+            if (saveType === Save.Type.Auto) {
+                return true; // 允许自动存档
+            }
+            return oldSaveRule(saveType); // 否则恢复原来的规则
+        };
         // 手动存档
         let d = new Date().toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"});
-        let m = {time: d};
-        Save.browser.auto.save(null, m.time);
+        let p = passage();
+        let m = {time: d, passage: p};
+        Save.browser.auto.save(null, m);
         // 恢复原来的规则
         Config.saves.isAllowed = oldSaveRule;
         console.log("已创建自动存档");
@@ -491,9 +507,9 @@ Macro.add("autosave", {
 });
 
 
-// 设置存档的描述显示是passage的前20个字符
+// 设置存档的描述显示是passage的前50个字符
 Config.saves.descriptions = function (saveType) {
-    return Story.get(passage()).processText().slice(0, 20) + "...";
+    return Story.get(passage()).processText().slice(0, 50) + "...";
 };
 
 // Set clicking event to close the pages
@@ -1203,10 +1219,10 @@ Macro.add('dialogclose', {
 ----
 
 &#39;&#39;Changelog:&#39;&#39;
-* 2025-03-02
-&gt;- 左侧边栏按钮的存档功能现在做好了。
-&gt;- 我真服了，跟个存档功能搏斗三天了，奶奶滴。
-&gt;- 现在在做存档的导入导出功能。
+* 2025-03-03
+&gt;- 现在可以正常导入、导出存档了。
+&gt;- 现在可以通过【设置】-&gt;【重新开始游戏】快速重启游戏。
+&gt;- 正在写其他的菜单内容。
 
 ----
 &lt;&lt;button &quot;开始游戏&quot; &quot;Intro&quot;&gt;&gt;
@@ -1226,7 +1242,7 @@ Macro.add('dialogclose', {
 
 [[ |IntroDiner]]
 
-</tw-passagedata><tw-passagedata pid="5" name="StoryCaption" tags="Code-Passages" position="75,500" size="100,100">&lt;&lt;if passage() is &quot;Title&quot;&gt;&gt;
+</tw-passagedata><tw-passagedata pid="5" name="StoryCaption" tags="Code-Passages" position="75,500" size="100,100">    &lt;&lt;if passage() is &quot;Title&quot;&gt;&gt;
 		&lt;div id=&quot;menu-button&quot;&gt;
             &lt;&lt;link &quot;存档&quot;&gt;&gt;&lt;&lt;openPage &quot;存档&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;
             @@#menu-bottom;
@@ -1278,6 +1294,7 @@ Arnold Simulator
         /* 非测试情况下强制每次都从Title开始 */
         &lt;&lt;goto &quot;Title&quot;&gt;&gt;
     &lt;&lt;/if&gt;&gt;
+    
 
     /* 删除自带的menu边栏按钮 */
     &lt;&lt;remove &quot;#menu-core&quot;&gt;&gt;
@@ -1325,9 +1342,9 @@ Arnold Simulator
         &quot;当你的压力过大时，你有可能会昏倒。&quot;,
         &quot;注意你的情绪，过高的压力可能导致不理智的决定。&quot;,
         &quot;注意你的健康，过度的疲劳可能导致身体不适。&quot;,
-        &quot;注意你的自控，失去自控可能导致不可挽回的后果。&quot;,
+        &quot;注意你的自控，失去自控可能导致你无法控制自己的行为。&quot;,
         &quot;注意你的社交，良好的人际关系可能带来意想不到的好处。&quot;,
-        &quot;注意你的时间，时间的流逝可能带来不同的事件。&quot;,
+        &quot;注意时间，时间的流逝可能带来不同的事件。&quot;,
 
     ]&gt;&gt;
 
@@ -1389,7 +1406,7 @@ Arnold Simulator
 至少，直到昨天为止，你一直这样认为。
 
 [[继续|Intro2]]
-</tw-passagedata><tw-passagedata pid="11" name="IntroDiner" tags="" position="850,425" size="100,100"></tw-passagedata><tw-passagedata pid="12" name="StorySubtitle" tags="Code-Passages" position="75,350" size="100,100">&lt;&lt;if passage() is &quot;Title&quot;&gt;&gt;
+&lt;&lt;autosave&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="IntroDiner" tags="" position="850,425" size="100,100"></tw-passagedata><tw-passagedata pid="12" name="StorySubtitle" tags="Code-Passages" position="75,350" size="100,100">&lt;&lt;if passage() is &quot;Title&quot;&gt;&gt;
 /* 灰色 */\
 @@color:grey;//v0.01alpha//@@
 &lt;&lt;else&gt;&gt;
@@ -1403,9 +1420,7 @@ Arnold Simulator
 &lt;&lt;print _id&gt;&gt;
 
 &lt;&lt;link &quot;test&quot;&gt;&gt;
-	&lt;&lt;replace _id&gt;&gt;
-		if replace is successful
-	&lt;&lt;/replace&gt;&gt;
+	&lt;&lt;run UI.settings()&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
 [[Test]]</tw-passagedata><tw-passagedata pid="14" name="Intro2" tags="" position="475,425" size="100,100">&lt;&lt;nobr&gt;&gt;
@@ -1684,9 +1699,29 @@ Arnold Simulator
                     &lt;&lt;include &quot;achievements-page&quot;&gt;&gt;
             &lt;&lt;/switch&gt;&gt;
         &lt;&lt;/replace&gt;&gt;
+        /* 检查passage和tags,禁用保存 */
+        &lt;&lt;if passage() is &quot;Title&quot; or tags().includes(&quot;events&quot;)&gt;&gt;
+            &lt;&lt;run $(&quot;#page-content a:contains(&#39;保存&#39;)&quot;).css(&#39;pointer-events&#39;, &#39;none&#39;).css(&#39;color&#39;, &#39;gray&#39;)&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+            &lt;&lt;run $(&quot;#page-content a:contains(&#39;保存&#39;)&quot;).css(&#39;pointer-events&#39;, &#39;auto&#39;).css(&#39;color&#39;, &#39;&#39;);&gt;&gt;    
+        &lt;&lt;/if&gt;&gt;
     &lt;&lt;/widget&gt;&gt; 
-&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="24" name="stat-page" tags="pages nobr" position="1000,75" size="100,100"></tw-passagedata><tw-passagedata pid="25" name="social-page" tags="pages nobr" position="1000,150" size="100,100"></tw-passagedata><tw-passagedata pid="26" name="inventory-page" tags="pages nobr" position="1000,225" size="100,100"></tw-passagedata><tw-passagedata pid="27" name="journal-page" tags="pages nobr" position="1000,300" size="100,100"></tw-passagedata><tw-passagedata pid="28" name="settings-page" tags="pages nobr" position="1000,450" size="100,100"></tw-passagedata><tw-passagedata pid="29" name="achievements-page" tags="pages nobr" position="1000,525" size="100,100"></tw-passagedata><tw-passagedata pid="30" name="saves-page" tags="pages nobr" position="1000,375" size="100,100">    &lt;ul id=&quot;page-tabs&quot; style=&quot;display:none;&quot;&gt;
+&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="24" name="stat-page" tags="pages nobr" position="1000,75" size="100,100"></tw-passagedata><tw-passagedata pid="25" name="social-page" tags="pages nobr" position="1000,150" size="100,100"></tw-passagedata><tw-passagedata pid="26" name="inventory-page" tags="pages nobr" position="1000,225" size="100,100"></tw-passagedata><tw-passagedata pid="27" name="journal-page" tags="pages nobr" position="1000,300" size="100,100"></tw-passagedata><tw-passagedata pid="28" name="settings-page" tags="pages nobr" position="1000,450" size="100,100">    &lt;ul id=&quot;page-tabs&quot; style=&quot;display:none;&quot;&gt;
 
+    &lt;/ul&gt;
+    &lt;div id=&quot;content-settings&quot; class=&quot;page-content&quot;&gt;
+    
+    &lt;/div&gt;
+    &lt;div class=&quot;page-bottom&quot;&gt;
+        &lt;&lt;button &quot;重新开始游戏&quot;&gt;&gt;
+            &lt;&lt;dialog &quot;注意&quot;&gt;&gt;
+                你确定要重新开始游戏吗? 未保存的进度将丢失。
+                &lt;br /&gt;&lt;br /&gt;
+                &lt;&lt;button &quot;确定&quot;&gt;&gt;&lt;&lt;run Engine.restart()&gt;&gt;&lt;&lt;/button&gt;&gt;
+            &lt;&lt;/dialog&gt;&gt;
+        &lt;&lt;/button&gt;&gt;
+    &lt;/div&gt;</tw-passagedata><tw-passagedata pid="29" name="achievements-page" tags="pages nobr" position="1000,525" size="100,100"></tw-passagedata><tw-passagedata pid="30" name="saves-page" tags="pages nobr" position="1000,375" size="100,100">    &lt;ul id=&quot;page-tabs&quot; style=&quot;display:none;&quot;&gt;
+        
     &lt;/ul&gt;
     &lt;div id=&quot;content-saves&quot; class=&quot;page-content&quot;&gt;
         &lt;ul id=&quot;saves-list&quot;&gt;
@@ -1732,24 +1767,48 @@ Arnold Simulator
                 &lt;&lt;link &quot;删除&quot;&gt;&gt;&lt;&lt;menuSave &quot;delete&quot; 4&gt;&gt;&lt;&lt;/link&gt;&gt;
             &lt;/li&gt;
         &lt;/ul&gt;
-    &lt;/div&gt;</tw-passagedata><tw-passagedata pid="31" name="PassageHeader" tags="Code-Passages" position="75,575" size="100,100">        /* 首先检测健康是不是低于0，是的话会死掉 */\
-        &lt;&lt;if $arnold.health &lt;= 0&gt;&gt;
-            &lt;&lt;goto &quot;BE-Death&quot;&gt;&gt;
-        /* 最后检测健康是不是过低，过低的话有概率昏倒 */\
-        &lt;&lt;elseif $arnold.health &lt;= 30&gt;&gt;
-            &lt;&lt;if random(1, 100) &lt;= 10&gt;&gt;
-                &lt;&lt;goto &quot;Faint&quot;&gt;&gt;
-            /* 没昏倒的话，会昏昏沉沉并加疲劳，加压力 */\
-            &lt;&lt;else&gt;&gt;
-                &lt;&lt;set $arnold.fatigue += 50&gt;&gt;
-                &lt;&lt;set $arnold.stress += 50&gt;&gt;
-            &lt;&lt;/if&gt;&gt;
-        &lt;&lt;/if&gt;&gt;\
-        /* 然后检测疲劳和压力有没有满，满了就昏倒 */\
-        &lt;&lt;if $arnold.fatigue &gt;= 1000 or $arnold.stress &gt;= 1000&gt;&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;page-bottom&quot;&gt;
+        &lt;&lt;button &quot;导入存档&quot;&gt;&gt;
+            &lt;&lt;script&gt;&gt;
+            $(document.createElement(&#39;input&#39;))
+                .prop(&#39;type&#39;, &#39;file&#39;)
+                .on(&#39;change&#39;, ev =&gt; {
+                    Save.disk.load(ev)
+                        .then(metadata =&gt; {
+                            Engine.show();
+                        })
+                        .catch(error =&gt; {
+                            /* Failure.  Handle the error. */
+                            console.error(error);
+                            UI.alert(error);
+                        });
+                })
+                .trigger(&#39;click&#39;);
+            &lt;&lt;/script&gt;&gt;
+        &lt;&lt;/button&gt;&gt;
+        &lt;&lt;button &quot;导出存档&quot;&gt;&gt;
+            &lt;&lt;run Save.disk.save(&quot;阿诺德模拟器&quot;)&gt;&gt;
+        &lt;&lt;/button&gt;&gt;
+    &lt;/div&gt;</tw-passagedata><tw-passagedata pid="31" name="PassageHeader" tags="Code-Passages" position="75,575" size="100,100">
+    /* 首先检测健康是不是低于0，是的话会死掉 */\
+    &lt;&lt;if $arnold.health &lt;= 0&gt;&gt;
+        &lt;&lt;goto &quot;BE-Death&quot;&gt;&gt;
+    /* 最后检测健康是不是过低，过低的话有概率昏倒 */\
+    &lt;&lt;elseif $arnold.health &lt;= 30&gt;&gt;
+        &lt;&lt;if random(1, 100) &lt;= 10&gt;&gt;
             &lt;&lt;goto &quot;Faint&quot;&gt;&gt;
-        &lt;&lt;/if&gt;&gt;\
-</tw-passagedata><tw-passagedata pid="32" name="addTime" tags="widget" position="1125,225" size="100,100">&lt;&lt;nobr&gt;&gt;
+        /* 没昏倒的话，会昏昏沉沉并加疲劳，加压力 */\
+        &lt;&lt;else&gt;&gt;
+            &lt;&lt;set $arnold.fatigue += 50&gt;&gt;
+            &lt;&lt;set $arnold.stress += 50&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/if&gt;&gt;\
+
+    /* 然后检测疲劳和压力有没有满，满了就昏倒 */\
+    &lt;&lt;if $arnold.fatigue &gt;= 1000 or $arnold.stress &gt;= 1000&gt;&gt;
+        &lt;&lt;goto &quot;Faint&quot;&gt;&gt;
+    &lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="32" name="addTime" tags="widget" position="1125,225" size="100,100">&lt;&lt;nobr&gt;&gt;
     /* _args[0] 必须是 string，其他的必须是 number
     这里没有加报错的情况因为我懒，而且这些代码又不会有别人看 */
     &lt;&lt;widget &quot;addTime&quot;&gt;&gt;
@@ -1776,7 +1835,7 @@ Arnold Simulator
     &lt;&lt;widget &quot;menuSave&quot;&gt;&gt;
         /* &lt;&lt;menuSave &quot;save&quot; 1&gt;&gt; */
         /* 先初始化各种变量： */
-        &lt;&lt;set _desc to &quot;&quot;&gt;&gt;
+        &lt;&lt;set _desc to &quot;无存档&quot;&gt;&gt;
         &lt;&lt;set _date to &quot;&quot;&gt;&gt;
         &lt;&lt;set _time to new Date().toLocaleString(&quot;zh-CN&quot;, { year: &quot;numeric&quot;, month: &quot;2-digit&quot;, day: &quot;2-digit&quot;, hour: &quot;2-digit&quot;, minute: &quot;2-digit&quot;})&gt;&gt;
         &lt;&lt;set _passage to passage()&gt;&gt;
@@ -1790,16 +1849,18 @@ Arnold Simulator
                 &lt;&lt;switch _args[0]&gt;&gt;
                     &lt;&lt;case &quot;load&quot;&gt;&gt;
                         &lt;&lt;run Save.browser.auto.load(_arg)&gt;&gt;
-                        &lt;&lt;set _get to Save.browser.auto.get(_arg)&gt;&gt;
-                        &lt;&lt;set _desc to _get.desc&gt;&gt;
-                        &lt;&lt;set _date to _get.metadata.time&gt;&gt;
                         &lt;&lt;goto _get.metadata.passage&gt;&gt;
                     &lt;&lt;case &quot;delete&quot;&gt;&gt;
                         &lt;&lt;dialog &quot;注意&quot;&gt;&gt;
                             是否删除当前存档？
-                            &lt;br/&gt;
+                            &lt;br/&gt;&lt;br /&gt;
                             &lt;&lt;button &quot;删除&quot;&gt;&gt;
-                            &lt;&lt;run Save.browser.auto.delete(_arg)&gt;&gt;&lt;&lt;dialogclose&gt;&gt;
+                            &lt;&lt;run Save.browser.auto.delete(_arg)&gt;&gt;
+                            &lt;&lt;replace _id&gt;&gt;\
+                                &lt;&lt;print &quot;&lt;div&gt;&quot; + _desc + &quot;&lt;/div&gt;&quot;&gt;&gt;
+                                &lt;&lt;print &quot;&lt;div&gt;&quot; + _date + &quot;&lt;/div&gt;&quot;&gt;&gt;
+                            &lt;&lt;/replace&gt;&gt;
+                            &lt;&lt;dialogclose&gt;&gt;
                             &lt;&lt;/button&gt;&gt;
                         &lt;&lt;/dialog&gt;&gt;      
                 &lt;&lt;/switch&gt;&gt;
@@ -1810,7 +1871,7 @@ Arnold Simulator
                 &lt;&lt;case &quot;save&quot;&gt;&gt;
                     &lt;&lt;dialog &quot;注意&quot;&gt;&gt;
                         当前存档栏位已经有存档，是否覆盖？
-                        &lt;br/&gt;
+                        &lt;br/&gt;&lt;br /&gt;
                         &lt;&lt;button &quot;覆盖&quot;&gt;&gt;
                             &lt;&lt;run Save.browser.slot.save(_args[1], null, _meta)&gt;&gt;
                             &lt;&lt;set _get to Save.browser.slot.get(_args[1])&gt;&gt;
@@ -1834,7 +1895,7 @@ Arnold Simulator
                 /* 删除 */
                     &lt;&lt;dialog &quot;注意&quot;&gt;&gt;
                         是否删除当前存档？
-                        &lt;br/&gt;
+                        &lt;br/&gt;&lt;br /&gt;
                         &lt;&lt;button &quot;删除&quot;&gt;&gt;
                             &lt;&lt;run Save.browser.slot.delete(_args[1])&gt;&gt;
                             &lt;&lt;replace _id&gt;&gt;\
@@ -1859,7 +1920,7 @@ Arnold Simulator
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="35" name="saveList" tags="widget" position="1250,375" size="100,100">&lt;&lt;nobr&gt;&gt;
     &lt;&lt;widget &quot;saveList&quot;&gt;&gt;
         /* 先检查是不是自动存档 */
-        &lt;&lt;set _desc to &quot;&quot;&gt;&gt;
+        &lt;&lt;set _desc to &quot;无存档&quot;&gt;&gt;
         &lt;&lt;set _date to &quot;&quot;&gt;&gt;
         &lt;&lt;if _args[0] is &quot;A&quot;&gt;&gt;
             &lt;&lt;set _arg to 0&gt;&gt;

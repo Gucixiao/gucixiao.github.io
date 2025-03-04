@@ -4,24 +4,30 @@ Config.saves.maxSlotSaves = 5;
 Config.saves.maxAutoSaves = 1;
 // Limit the history to 20
 Config.history.maxStates = 20;
-// 禁止自动存档（只能在我手动允许的地方存档
+// 禁止自动存档（只能在我手动允许的地方存档）
 Config.saves.isAllowed = function (saveType) {
-	if (saveType === Save.Type.Auto) {
-		return false;
-	}
-	return true;
+    if (saveType === Save.Type.Auto) {
+        return false;
+    } 
+    return true;
 };
-//创建自动存档的宏
+// 创建自动存档的宏
 Macro.add("autosave", {
     handler() {
         // 储存原本的存档规则
-        const oldSaveRule = Config.saves.isAllowed;
+        const oldSaveRule = Config.saves.isAllowed;       
         // 临时允许自动存档
-        Config.saves.isAllowed = true;
+        Config.saves.isAllowed = function(saveType) {
+            if (saveType === Save.Type.Auto) {
+                return true; // 允许自动存档
+            }
+            return oldSaveRule(saveType); // 否则恢复原来的规则
+        };
         // 手动存档
         let d = new Date().toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"});
-        let m = {time: d};
-        Save.browser.auto.save(null, m.time);
+        let p = passage();
+        let m = {time: d, passage: p};
+        Save.browser.auto.save(null, m);
         // 恢复原来的规则
         Config.saves.isAllowed = oldSaveRule;
         console.log("已创建自动存档");
@@ -29,9 +35,9 @@ Macro.add("autosave", {
 });
 
 
-// 设置存档的描述显示是passage的前20个字符
+// 设置存档的描述显示是passage的前50个字符
 Config.saves.descriptions = function (saveType) {
-    return Story.get(passage()).processText().slice(0, 20) + "...";
+    return Story.get(passage()).processText().slice(0, 50) + "...";
 };
 
 // Set clicking event to close the pages

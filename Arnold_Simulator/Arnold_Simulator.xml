@@ -52,9 +52,9 @@
         "当你的压力过大时，你有可能会昏倒。",
         "注意你的情绪，过高的压力可能导致不理智的决定。",
         "注意你的健康，过度的疲劳可能导致身体不适。",
-        "注意你的自控，失去自控可能导致不可挽回的后果。",
+        "注意你的自控，失去自控可能导致你无法控制自己的行为。",
         "注意你的社交，良好的人际关系可能带来意想不到的好处。",
-        "注意你的时间，时间的流逝可能带来不同的事件。",
+        "注意时间，时间的流逝可能带来不同的事件。",
 
     ]>>
 
@@ -159,25 +159,26 @@
 <!-- PassageHeader -->
 <!-- 这里nobr不管用的 -->
 <PassageHeader>
-    <nobr>
-        /* 首先检测健康是不是低于0，是的话会死掉 */\
-        <<if $arnold.health <= 0>>
-            <<goto "BE-Death">>
-        /* 最后检测健康是不是过低，过低的话有概率昏倒 */\
-        <<elseif $arnold.health <= 30>>
-            <<if random(1, 100) <= 10>>
-                <<goto "Faint">>
-            /* 没昏倒的话，会昏昏沉沉并加疲劳，加压力 */\
-            <<else>>
-                <<set $arnold.fatigue += 50>>
-                <<set $arnold.stress += 50>>
-            <</if>>
-        <</if>>\
-        /* 然后检测疲劳和压力有没有满，满了就昏倒 */\
-        <<if $arnold.fatigue >= 1000 or $arnold.stress >= 1000>>
+
+    /* 首先检测健康是不是低于0，是的话会死掉 */\
+    <<if $arnold.health <= 0>>
+        <<goto "BE-Death">>
+    /* 最后检测健康是不是过低，过低的话有概率昏倒 */\
+    <<elseif $arnold.health <= 30>>
+        <<if random(1, 100) <= 10>>
             <<goto "Faint">>
-        <</if>>\
-    </nobr>
+        /* 没昏倒的话，会昏昏沉沉并加疲劳，加压力 */\
+        <<else>>
+            <<set $arnold.fatigue += 50>>
+            <<set $arnold.stress += 50>>
+        <</if>>
+    <</if>>\
+
+    /* 然后检测疲劳和压力有没有满，满了就昏倒 */\
+    <<if $arnold.fatigue >= 1000 or $arnold.stress >= 1000>>
+        <<goto "Faint">>
+    <</if>>\
+
 </PassageHeader>
 
 <!-- PassageFooter -->
@@ -419,6 +420,12 @@
                     <<include "achievements-page">>
             <</switch>>
         <</replace>>
+        /* 检查passage和tags,禁用保存 */
+        <<if passage() is "Title" or tags().includes("events")>>
+            <<run $("#page-content a:contains('保存')").css('pointer-events', 'none').css('color', 'gray')>>
+        <<else>>
+            <<run $("#page-content a:contains('保存')").css('pointer-events', 'auto').css('color', '');>>    
+        <</if>>
     <</widget>> 
 <</nobr>>
 
@@ -427,7 +434,7 @@
     <<widget "menuSave">>
         /* <<menuSave "save" 1>> */
         /* 先初始化各种变量： */
-        <<set _desc to "">>
+        <<set _desc to "无存档">>
         <<set _date to "">>
         <<set _time to new Date().toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"})>>
         <<set _passage to passage()>>
@@ -441,16 +448,18 @@
                 <<switch _args[0]>>
                     <<case "load">>
                         <<run Save.browser.auto.load(_arg)>>
-                        <<set _get to Save.browser.auto.get(_arg)>>
-                        <<set _desc to _get.desc>>
-                        <<set _date to _get.metadata.time>>
                         <<goto _get.metadata.passage>>
                     <<case "delete">>
                         <<dialog "注意">>
                             是否删除当前存档？
-                            <br/>
+                            <br/><br />
                             <<button "删除">>
-                            <<run Save.browser.auto.delete(_arg)>><<dialogclose>>
+                            <<run Save.browser.auto.delete(_arg)>>
+                            <<replace _id>>\
+                                <<print "<div>" + _desc + "</div>">>
+                                <<print "<div>" + _date + "</div>">>
+                            <</replace>>
+                            <<dialogclose>>
                             <</button>>
                         <</dialog>>      
                 <</switch>>
@@ -461,7 +470,7 @@
                 <<case "save">>
                     <<dialog "注意">>
                         当前存档栏位已经有存档，是否覆盖？
-                        <br/>
+                        <br/><br />
                         <<button "覆盖">>
                             <<run Save.browser.slot.save(_args[1], null, _meta)>>
                             <<set _get to Save.browser.slot.get(_args[1])>>
@@ -485,7 +494,7 @@
                 /* 删除 */
                     <<dialog "注意">>
                         是否删除当前存档？
-                        <br/>
+                        <br/><br />
                         <<button "删除">>
                             <<run Save.browser.slot.delete(_args[1])>>
                             <<replace _id>>\
@@ -513,7 +522,7 @@
 <<nobr>>
     <<widget "saveList">>
         /* 先检查是不是自动存档 */
-        <<set _desc to "">>
+        <<set _desc to "无存档">>
         <<set _date to "">>
         <<if _args[0] is "A">>
             <<set _arg to 0>>
@@ -538,13 +547,28 @@
 <</nobr>>
 
 
-/* ==============================================*/
-/* tag: pages */
-/* ==============================================*/
-/* saves-page */
+<!-- ============================================== -->
+<!-- tag: pages
+
+example usage:
+
 <div id="page-content">
     <ul id="page-tabs" style="display:none;">
 
+    </ul>
+    <div id="content-[]" class="page-content">
+    
+    </div>
+    <div class="page-bottom">
+    </div>
+</div>
+
+-->
+<!-- ============================================== -->
+<!-- saves-page -->
+<div id="page-content">
+    <ul id="page-tabs" style="display:none;">
+        
     </ul>
     <div id="content-saves" class="page-content">
         <ul id="saves-list">
@@ -591,12 +615,65 @@
             </li>
         </ul>
     </div>
+    <div class="page-bottom">
+        <<button "导入存档">>
+            <<script>>
+            $(document.createElement('input'))
+                .prop('type', 'file')
+                .on('change', ev => {
+                    Save.disk.load(ev)
+                        .then(metadata => {
+                            Engine.show();
+                        })
+                        .catch(error => {
+                            /* Failure.  Handle the error. */
+                            console.error(error);
+                            UI.alert(error);
+                        });
+                })
+                .trigger('click');
+            <</script>>
+        <</button>>
+        <<button "导出存档">>
+            <<run Save.disk.save("阿诺德模拟器")>>
+        <</button>>
+    </div>
 </div>
 
+<!-- stat-pages -->
+<div id="page-content">
+    <ul id="page-tabs" style="display:none;">
 
-/* ==================================================================== */
-/* tag: event */
-/* Faint */
+    </ul>
+    <div id="content-stats" class="page-content">
+    
+    </div>
+    <div class="page-bottom">
+    </div>
+</div>
+
+<!-- settings-page -->
+<div id="page-content">
+    <ul id="page-tabs" style="display:none;">
+
+    </ul>
+    <div id="content-settings" class="page-content">
+    
+    </div>
+    <div class="page-bottom">
+        <<button "重新开始游戏">>
+            <<dialog "注意">>
+                你确定要重新开始游戏吗? 未保存的进度将丢失。
+                <br /><br />
+                <<button "确定">><<run Engine.restart()>><</button>>
+            <</dialog>>
+        <</button>>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- tag: event -->
+<!-- Faint -->
 <<nobr>>
     <<set _fatigue to true>>
     <<set _stress to true>>
@@ -639,4 +716,4 @@
 <</link>>
 @@
 
-/* ==================================================================== */
+<!-- ============================================== -->
