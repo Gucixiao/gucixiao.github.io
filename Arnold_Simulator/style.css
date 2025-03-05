@@ -133,6 +133,10 @@
 #menu-button span.debug {
     width: 112px;
 }
+/* fix debut watching box not showing full content */
+#debug-bar-watch {
+    overflow-x: scroll;
+}
 
 /* ==============================
         Pages

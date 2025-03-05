@@ -52,12 +52,14 @@ $("#ui-dialog-body").click(function (e) {
     e.stopPropagation();
 });
 
-//点击任何位于.passage的链接都将触发<<refreshSidbar>> widget
-$(document).click(function (e) {
-    if (!$(e.target).closest("#ui-bar").length && $(e.target).is("a")) {
-        $.wiki('<<refreshSidebar>>')
-    }
-});
+// 因为会导致点击链接跳转到新passage的时候，会因为新passage自带一次刷新而导致refresh了两次，所以这里禁用
+// 需要的话可以在passage里面手动调用<<refreshSidebar>>来刷新sidebar
+// //点击任何位于.passage的链接都将触发<<refreshSidbar>> widget
+// $(document).click(function (e) {
+//     if (!$(e.target).closest("#ui-bar").length && $(e.target).is("a")) {
+//         $.wiki('<<refreshSidebar>>')
+//     }
+// });
 
 /* ============================================ */
 /* imported js */

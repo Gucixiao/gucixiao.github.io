@@ -15,10 +15,39 @@
         fatigue: 0,
         stress: 0,
         control: 1000,
+        social: {},
+        inventory: {},
+        journal: {},
+    }>>
+
+    /* 提芙利初始化 */
+    <<set $tiffly = {
+        love: 0,
+        lust: 0,
+        relation: 0,
+        suspicion: 0,
+        dominance: 0,
+        social: {},
         inventory: {},
     }>>
-    /* 特殊物品和任务进度追踪*/
+
+    /* 社交初始化 */
+    <<set $npc = {}>>
+
+    /* 进度条初始化 */
+    <<set $progress = {}>>
+
+    /* 特殊物品 */
     <<set $unique = new Set()>>
+    <<set $uniqueList = {}>>
+
+    /* 任务初始化 */
+    <<set $missions = new Set()>>
+    <<set $missionList = {}>>
+
+    /* 成就初始化 */
+    <<set $achievements = new Set()>>
+    <<set $achievementList = {}>>
 
     /* 时间变量初始化 */
     <<set $time to {
@@ -221,13 +250,13 @@
 <<nobr>>
     <<widget "time">>
         /* 满60分钟加1小时 */
-        <<if $time.minute >= 60>>
-            <<set $time.minute = 0>>
+        <<for $time.minute >= 60>>
+            <<set $time.minute -= 60>>
             <<set $time.hour += 1>>
-        <</if>>
+        <</for>>
         /* 满24小时加1天 */
         <<if $time.hour >= 24>>
-            <<set $time.hour = 0>>
+            <<set $time.hour -= 24>>
             <<set $time.day += 1>>
             <<set $time.week += 1>>
         <</if>>
@@ -268,51 +297,12 @@
         <<switch _args[0]>>
             <<case "minute">>
                 /* minute 的效果是加 _args[1]分钟 */
-                <<set $time[$args[0]] += Number(_args[1])>>
+                <<set $time[_args[0]] += Number(_args[1])>>
                 /* 每分钟+1疲劳 */
                 <<addStat "fatigue" _args[1]>>
             <<case "sleep">>
-                /* 睡 _args[1] 个小时 */
-                <<set $time.hour += Number(_args[1])>>
-                <<addStat "sleep" _args[1]>>
-                <<if _args[1] >= 10>>
-                    <<set $lastPassage to "tooMuchSleep">>
-                    <<addStat "health" (_args[1]-10)*2>>
-                <</if>>
-            <<case "eSleep">>
-                /* 睡眠时间估算, 只有_args[0] */
-                <<if _args[1]>>
-                    <<set _hour to _args[1]>>
-                    <<set _dHour to $time.hour + _hour>>
-                    <<set _dNext to "今天">>
-                    <<if _dHour >= 24>>
-                        <<set _dHour to _dHour - 24>>
-                        <<set _dNext to "第二天">>
-                    <</if>>
-                    <<if _dHour < 10>>
-                        <<set _dHour to "0" + _dHour>>
-                    <</if>>
-                    @@color:grey;//&nbsp;&nbsp;<<print _dNext + " " + _dHour + ":00">>//@@
-                <<else>>
-                    /* 每60分钟疲劳-80 */
-                    <<set _need to $arnold.fatigue/80*60>>
-                    <<set _minute to _need%60>>
-                    <<set _hour to (_need-_minute)/60>>
-                    <<set _dMin to $time.minute + _minute>>
-                    <<set _dHour to $time.hour + _hour>>
-                    <<set _dNext to "今天">>
-                    <<if _dHour >= 24>>
-                        <<set _dHour to _dHour - 24>>
-                        <<set _dNext to "第二天">>
-                    <</if>>
-                    <<if _dMin < 10>>
-                        <<set _dMin to "0" + _dMin>>
-                    <</if>>
-                    <<if _dHour < 10>>
-                        <<set _dHour to "0" + _dHour>>
-                    <</if>>
-                    @@color:grey;//&nbsp;&nbsp;<<print _dNext + " " + _dHour + ":" + _dMin>>//@@  
-                <</if>>
+                /* 睡 _args[1] 分钟 */
+                <<set $time.minute += Number(_args[1])>> 
         <</switch>>
     <</widget>>
 <</nobr>>
@@ -350,13 +340,16 @@
             /* 健康 */
             <<case "health">>
                 <<set $arnold.health += Number(_args[1])>>
-            /* 特殊项 睡眠，输入的是一个整数 */
+            /* 特殊项 睡眠 */
             <<case "sleep">>
                 /* 每睡一个小时减少80疲劳，60压力，增加50自控，恢复1健康 */
-                <<set $arnold.fatigue -= 80 * _args[1]>>
-                <<set $arnold.stress -= 60 * _args[1]>>
-                <<set $arnold.control += 50 * _args[1]>>
-                <<set $arnold.health += _args[1]>>
+                <<set $arnold.fatigue -= Math.ceil(80 * _args[1])>>
+                <<set $arnold.stress -= Math.ceil(60 * _args[1])>>
+                <<set $arnold.control += Math.ceil(50 * _args[1])>>
+                <<set $arnold.health += Math.ceil(_args[1])>>
+                <<if _args[1] >= 10>>
+                    <<set $lastPassage to "tooMuchSleep" + (_args[1] - 10)>>
+                <</if>>
         <</switch>>
     <</widget>>
 <</nobr>>
@@ -646,6 +639,48 @@
     <</widget>>
 <</nobr>>
 
+<!-- sleepCalc -->
+<<nobr>>
+    <<widget "sleepCalc">>
+        /* 按照操作不同 运行不同的代码 */
+        <<set _need to $arnold.fatigue/80>>
+        <<set _hour to Math.floor(_need)>>
+        <<set _minute to Math.ceil((_need-_hour)*60)>>
+        <<switch _args[0]>>
+            <<case "eSleep">>
+                <<set _dNext to "今天">>
+                <<if _args[1]>>
+                    <<set _dMin to $time.minute>>
+                    <<set _dHour to $time.hour + _args[1]>>
+                <<else>>
+                    <<set _dMin to $time.minute + Math.ceil(_minute)>>
+                    <<set _dHour to $time.hour + _hour>>
+                <</if>>
+                <<if _dHour >= 24>>
+                    <<set _dHour to _dHour - 24>>
+                    <<set _dNext to "第二天">>
+                <</if>>
+                <<if _dMin < 10>>
+                    <<set _dMin to "0" + _dMin>>
+                <</if>>
+                <<if _dHour < 10>>
+                    <<set _dHour to "0" + _dHour>>
+                <</if>>
+                @@color:grey;//&nbsp;&nbsp;<<print _dNext + " " + _dHour + ":" + _dMin>>//@@  
+            <<case "sleep">> /* 实际睡觉代码，接收的可能是整数也可能是空 */
+                <<if _args[1]>> /* 一定是个整数 */
+                    <<addTime "sleep" _args[1]*60>>
+                    <<addStat "sleep" _args[1]>>
+                <<else>>
+                    <<set _tempMinute to _hour*60 + _minute>>
+                    <<set _tempHour to _hour + _minute/60>>
+                    <<addTime "sleep" _tempMinute>>
+                    <<addStat "sleep" _tempHour>>
+                <</if>>
+            <</switch>>
+    <</widget>>
+<</nobr>>
+
 
 <!-- ============================================== -->
 <!-- tag: pages
@@ -824,29 +859,59 @@ example usage:
 
 <<link "爬下床">><<goto "IntroBedroom">><</link>>
 
-睡觉：\
-* <<link "睡1个小时">><<addTime "sleep" 1>><</link>><<addTime "eSleep" 1>>
-* <<link "睡2个小时">><<addTime "sleep" 2>><</link>><<addTime "eSleep" 2>>
-* <<link "睡3个小时">><<addTime "sleep" 3>><</link>><<addTime "eSleep" 3>>
-* <<link "睡4个小时">><<addTime "sleep" 4>><</link>><<addTime "eSleep" 4>>
-* <<link "睡5个小时">><<addTime "sleep" 5>><</link>><<addTime "eSleep" 5>>
-* <<link "睡6个小时">><<addTime "sleep" 6>><</link>><<addTime "eSleep" 6>>
-* <<link "睡7个小时">><<addTime "sleep" 7>><</link>><<addTime "eSleep" 7>>
-* <<link "睡8个小时">><<addTime "sleep" 8>><</link>><<addTime "eSleep" 8>>
-* <<link "睡9个小时">><<addTime "sleep" 9>><</link>><<addTime "eSleep" 9>>
-* <<link "睡10个小时">><<addTime "sleep" 10>><</link>><<addTime "eSleep" 10>>
+睡觉：
+* <<link "睡1个小时">><<sleepCalc "sleep" 1>><<goto "Wake">><</link>><<sleepCalc "eSleep" 1>>
+* <<link "睡2个小时">><<sleepCalc "sleep" 2>><<goto "Wake">><</link>><<sleepCalc "eSleep" 2>>
+* <<link "睡3个小时">><<sleepCalc "sleep" 3>><<goto "Wake">><</link>><<sleepCalc "eSleep" 3>>
+* <<link "睡4个小时">><<sleepCalc "sleep" 4>><<goto "Wake">><</link>><<sleepCalc "eSleep" 4>>
+* <<link "睡5个小时">><<sleepCalc "sleep" 5>><<goto "Wake">><</link>><<sleepCalc "eSleep" 5>>
+* <<link "睡6个小时">><<sleepCalc "sleep" 6>><<goto "Wake">><</link>><<sleepCalc "eSleep" 6>>
+* <<link "睡7个小时">><<sleepCalc "sleep" 7>><<goto "Wake">><</link>><<sleepCalc "eSleep" 7>>
+* <<link "睡8个小时">><<sleepCalc "sleep" 8>><<goto "Wake">><</link>><<sleepCalc "eSleep" 8>>
+* <<link "睡9个小时">><<sleepCalc "sleep" 9>><<goto "Wake">><</link>><<sleepCalc "eSleep" 9>>
+* <<link "睡10个小时">><<sleepCalc "sleep" 10>><<goto "Wake">><</link>><<sleepCalc "eSleep" 10>>
 @@color:grey;font-size:0.8em;//睡眠超过10小时会导致身体不适//@@
 ><<linkreplace "睡得更久">>\
-* <<link "睡11个小时">><<addTime "sleep" 11>><</link>><<addTime "eSleep" 11>>
-* <<link "睡12个小时">><<addTime "sleep" 12>><</link>><<addTime "eSleep" 12>>
-* <<link "睡13个小时">><<addTime "sleep" 13>><</link>><<addTime "eSleep" 13>>
-* <<link "睡14个小时">><<addTime "sleep" 14>><</link>><<addTime "eSleep" 14>>
-* <<link "睡15个小时">><<addTime "sleep" 15>><</link>><<addTime "eSleep" 15>>
+* <<link "睡11个小时">><<sleepCalc "sleep" 11>><<goto "Wake">><</link>><<sleepCalc "eSleep" 11>>
+* <<link "睡12个小时">><<sleepCalc "sleep" 12>><<goto "Wake">><</link>><<sleepCalc "eSleep" 12>>
+* <<link "睡13个小时">><<sleepCalc "sleep" 13>><<goto "Wake">><</link>><<sleepCalc "eSleep" 13>>
+* <<link "睡14个小时">><<sleepCalc "sleep" 14>><<goto "Wake">><</link>><<sleepCalc "eSleep" 14>>
+* <<link "睡15个小时">><<sleepCalc "sleep" 15>><<goto "Wake">><</link>><<sleepCalc "eSleep" 15>>
 @@color:red;font-size:0.8em;//你不能睡超过15小时！那样太不健康了。//@@\
 <</linkreplace>>
 
-* <<link "睡到自然醒">><<addTime "sleep" _need>><</link>><<addTime "eSleep">>
+* <<link "睡到自然醒">><<sleepCalc "sleep">><<goto "Wake">><</link>><<sleepCalc "eSleep">>
 
 <!-- ============================================== -->
 <!-- Wake -->
+<<nobr>>
+    <<switch $lastPassage>>
+        <<case "">>
+            <<set _print to "">>
+        <<case "tooMuchSleep1">>
+            <<addStat "fatigue" 20>>
+            <<addStat "stress" 20>>
+            <<addStat "health" -1>>
+        <<case "tooMuchSleep2">>
+            <<addStat "fatigue" 40>>
+            <<addStat "stress" 40>>
+            <<addStat "health" -2>>
+        <<case "tooMuchSleep3">>
+            <<addStat "fatigue" 60>>
+            <<addStat "stress" 60>>
+            <<addStat "health" -3>>
+        <<case "tooMuchSleep4">>
+            <<addStat "fatigue" 80>>
+            <<addStat "stress" 80>>
+            <<addStat "health" -4>>
+        <<case "tooMuchSleep5">>
+            <<addStat "fatigue" 100>>
+            <<addStat "stress" 100>>
+            <<addStat "health" -5>>
+        <</switch>>
+<</nobr>>\
+你醒了过来。<<print _print>>
+
+
+<<link "起床">><<goto "IntroBedroom">><</link>>
 
