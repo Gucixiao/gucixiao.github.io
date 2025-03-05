@@ -277,6 +277,11 @@
     border-bottom: 1px solid #555;
 }
 
+/* options of a listbox */ 
+select {
+    background: #333;
+}
+
 /* ==============================
 		imported codes
 ================================= */

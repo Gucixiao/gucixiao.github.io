@@ -18,7 +18,7 @@
         inventory: {},
     }>>
     /* 特殊物品和任务进度追踪*/
-    <<set $unique = {}>>
+    <<set $unique = new Set()>>
 
     /* 时间变量初始化 */
     <<set $time to {
@@ -47,6 +47,7 @@
         "你可以通过成就页面查看你达成的成就。",
         "压力过大会影响你的自控能力。",
         "疲劳过度会影响你的健康。",
+        "随着体力的下降，疲劳会让你产生压力。",
         "当你过于劳累时，你有可能会昏倒。",
         "当你的健康过低时，你有可能会昏倒。",
         "当你的压力过大时，你有可能会昏倒。",
@@ -54,14 +55,38 @@
         "注意你的健康，过度的疲劳可能导致身体不适。",
         "注意你的自控，失去自控可能导致你无法控制自己的行为。",
         "注意你的社交，良好的人际关系可能带来意想不到的好处。",
-        "注意时间，时间的流逝可能带来不同的事件。",
-
+        "时间的流逝可能带来不同的事件。",
+        "你的选择会影响你的结局。",
+        "你的行为会影响你的人际关系。",
     ]>>
 
     /* 其他工具变量 */
     /* 检查当前菜单页面是否已经打开用的变量 */
     <<set $currentPage to "">>
+    /* 用来把上一个passage的值传递给下一个passage的变量 */
+    <<set $lastPassage to "">>
 
+    /* x32小图标快速插入初始化*/
+    <<set $icon = {
+        knife: "img/icon/knife.png",
+        mission: "img/icon/mission.png",
+    }>>
+    /* storybanner 初始化 */
+    <<set $banner to {
+        border: "img/storybanner/border.png",
+        base: {
+            default: "img/storybanner/base.png",
+            cute: "img/storybanner/base_cute.png",
+            disapprove: "img/storybanner/base_disapprove.png",
+            disapproveT: "img/storybanner/base_disapproveTalk.png",
+            glassesOff: "img/storybanner/base_glassesOff.png",
+            worried: "img/storybanner/base_worried.png",
+            worriedClose: "img/storybanner/base_worriedClose.png",
+        },
+        cloth: {
+            default: "img/storybanner/default.png",
+        },
+    }>>
     /*小树枝语快速插入初始化*/
     <<set $twig = {
         A: "<img src='img/twig/A.png'>",
@@ -90,12 +115,8 @@
         X: "<img src='img/twig/X.png'>",
         Y: "<img src='img/twig/Y.png'>",
         Z: "<img src='img/twig/Z.png'>"
-    } >>
-
-    /*小图标快速插入初始化*/
-    <<set $icon = {
-        
     }>>
+
 </StoryInit>
 
 <!-- StoryBanner -->
@@ -241,30 +262,102 @@
 
 <!-- addTime -->
 <<nobr>>
-    /* _args[0] 必须是 string，其他的必须是 number
-    这里没有加报错的情况因为我懒，而且这些代码又不会有别人看 */
+    /* _args[0]获得操作，_args[1]获得数值 */
     <<widget "addTime">>
-        <<set $time[$args[0]] += Number(_args[1])>>
-        <<if _args[0] is "minute">>
-            /* 每分钟+1疲劳 */
-            <<addStat "fatigue" _args[1]>>
-        <</if>>
+        /* 按照操作不同 运行不同的代码 */
+        <<switch _args[0]>>
+            <<case "minute">>
+                /* minute 的效果是加 _args[1]分钟 */
+                <<set $time[$args[0]] += Number(_args[1])>>
+                /* 每分钟+1疲劳 */
+                <<addStat "fatigue" _args[1]>>
+            <<case "sleep">>
+                /* 睡 _args[1] 个小时 */
+                <<set $time.hour += Number(_args[1])>>
+                <<addStat "sleep" _args[1]>>
+                <<if _args[1] >= 10>>
+                    <<set $lastPassage to "tooMuchSleep">>
+                    <<addStat "health" (_args[1]-10)*2>>
+                <</if>>
+            <<case "eSleep">>
+                /* 睡眠时间估算, 只有_args[0] */
+                <<if _args[1]>>
+                    <<set _hour to _args[1]>>
+                    <<set _dHour to $time.hour + _hour>>
+                    <<set _dNext to "今天">>
+                    <<if _dHour >= 24>>
+                        <<set _dHour to _dHour - 24>>
+                        <<set _dNext to "第二天">>
+                    <</if>>
+                    <<if _dHour < 10>>
+                        <<set _dHour to "0" + _dHour>>
+                    <</if>>
+                    @@color:grey;//&nbsp;&nbsp;<<print _dNext + " " + _dHour + ":00">>//@@
+                <<else>>
+                    /* 每60分钟疲劳-80 */
+                    <<set _need to $arnold.fatigue/80*60>>
+                    <<set _minute to _need%60>>
+                    <<set _hour to (_need-_minute)/60>>
+                    <<set _dMin to $time.minute + _minute>>
+                    <<set _dHour to $time.hour + _hour>>
+                    <<set _dNext to "今天">>
+                    <<if _dHour >= 24>>
+                        <<set _dHour to _dHour - 24>>
+                        <<set _dNext to "第二天">>
+                    <</if>>
+                    <<if _dMin < 10>>
+                        <<set _dMin to "0" + _dMin>>
+                    <</if>>
+                    <<if _dHour < 10>>
+                        <<set _dHour to "0" + _dHour>>
+                    <</if>>
+                    @@color:grey;//&nbsp;&nbsp;<<print _dNext + " " + _dHour + ":" + _dMin>>//@@  
+                <</if>>
+        <</switch>>
     <</widget>>
 <</nobr>>
 
 <!-- addStat -->
 <<nobr>>
-    /* _args[0] 必须是 string，其他的必须是 number
-    这里没有加报错的情况因为我懒，而且这些代码又不会有别人看 */
     <<widget "addStat">>
-        <<set $arnold[_args[0]] += Number(_args[1])>>
-        /* 如果疲劳过高，则任何加疲劳的行为都会加压力 */
-        <<if $arnold.fatigue >= 500 and _args[0] is "fatigue">>
-            <<set $arnold.stress += _args[1]>>
-            /* 如果压力过大，则任何加压力的行为都会减少自控 */
-        <<elseif $arnold.stress >= 500 and _args[0] is "stress">>
-            <<set $arnold.control -= _args[1]>>
-        <</if>>
+        /* _args[0]获得属性，_args[1]获得数值 */
+        /* 按照属性不同 运行不同的代码 */
+        <<switch _args[0]>>
+            /* 疲劳 */
+            <<case "fatigue">>
+                <<if $arnold.fatigue >= 500 and _args[1] > 0>>
+                    <<set $arnold.fatigue += Number(_args[1])>>
+                    <<set $arnold.stress += _args[1]>>
+                <<else>>
+                    <<set $arnold.fatigue += Number(_args[1])>>
+                <</if>>
+            /* 压力 */
+            <<case "stress">>
+                <<if $arnold.stress >= 500 and _args[1] > 0>>
+                    <<set $arnold.stress += Number(_args[1])>>
+                    <<set $arnold.control -= Math.floor(_args[1]/10)>>
+                <<else>>
+                    <<set $arnold.stress += Number(_args[1])>>
+                <</if>>
+            /* 自控 */
+            <<case "control">>
+                <<if $arnold.control <= 500 and _args[1] < 0>>
+                    <<set $arnold.control += Number(_args[1])>>
+                    <<set $arnold.stress -= _args[1]>>
+                <<else>>
+                    <<set $arnold.control += Number(_args[1])>>
+                <</if>>
+            /* 健康 */
+            <<case "health">>
+                <<set $arnold.health += Number(_args[1])>>
+            /* 特殊项 睡眠，输入的是一个整数 */
+            <<case "sleep">>
+                /* 每睡一个小时减少80疲劳，60压力，增加50自控，恢复1健康 */
+                <<set $arnold.fatigue -= 80 * _args[1]>>
+                <<set $arnold.stress -= 60 * _args[1]>>
+                <<set $arnold.control += 50 * _args[1]>>
+                <<set $arnold.health += _args[1]>>
+        <</switch>>
     <</widget>>
 <</nobr>>
 
@@ -421,15 +514,17 @@
             <</switch>>
         <</replace>>
         /* 检查passage和tags,禁用保存 */
-        <<if passage() is "Title" or tags().includes("events")>>
-            <<run $("#page-content a:contains('保存')").css('pointer-events', 'none').css('color', 'gray')>>
-            <<prepend "#saves-list">>
-            	<div style="color:red;text-align:center;margin-bottom:0.5em;">
-                	当前页面不能保存！
-                </div>
-            <</prepend>>
-        <<else>>
-            <<run $("#page-content a:contains('保存')").css('pointer-events', 'auto').css('color', '');>>    
+        <<if $currentPage is "存档">>
+            <<if passage() is "Title" or tags().includes("events")>>
+                <<run $("#page-content a:contains('保存')").css('pointer-events', 'none').css('color', 'gray')>>
+                <<prepend "#saves-list">>
+                    <div style="color:red;text-align:center;margin-bottom:0.5em;">
+                        当前页面不能保存！
+                    </div>
+                <</prepend>>
+            <<else>>
+                <<run $("#page-content a:contains('保存')").css('pointer-events', 'auto').css('color', '');>>    
+            <</if>>
         <</if>>
     <</widget>> 
 <</nobr>>
@@ -722,3 +817,36 @@ example usage:
 @@
 
 <!-- ============================================== -->
+<!-- Sleep -->
+你爬到床上。
+
+
+
+<<link "爬下床">><<goto "IntroBedroom">><</link>>
+
+睡觉：\
+* <<link "睡1个小时">><<addTime "sleep" 1>><</link>><<addTime "eSleep" 1>>
+* <<link "睡2个小时">><<addTime "sleep" 2>><</link>><<addTime "eSleep" 2>>
+* <<link "睡3个小时">><<addTime "sleep" 3>><</link>><<addTime "eSleep" 3>>
+* <<link "睡4个小时">><<addTime "sleep" 4>><</link>><<addTime "eSleep" 4>>
+* <<link "睡5个小时">><<addTime "sleep" 5>><</link>><<addTime "eSleep" 5>>
+* <<link "睡6个小时">><<addTime "sleep" 6>><</link>><<addTime "eSleep" 6>>
+* <<link "睡7个小时">><<addTime "sleep" 7>><</link>><<addTime "eSleep" 7>>
+* <<link "睡8个小时">><<addTime "sleep" 8>><</link>><<addTime "eSleep" 8>>
+* <<link "睡9个小时">><<addTime "sleep" 9>><</link>><<addTime "eSleep" 9>>
+* <<link "睡10个小时">><<addTime "sleep" 10>><</link>><<addTime "eSleep" 10>>
+@@color:grey;font-size:0.8em;//睡眠超过10小时会导致身体不适//@@
+><<linkreplace "睡得更久">>\
+* <<link "睡11个小时">><<addTime "sleep" 11>><</link>><<addTime "eSleep" 11>>
+* <<link "睡12个小时">><<addTime "sleep" 12>><</link>><<addTime "eSleep" 12>>
+* <<link "睡13个小时">><<addTime "sleep" 13>><</link>><<addTime "eSleep" 13>>
+* <<link "睡14个小时">><<addTime "sleep" 14>><</link>><<addTime "eSleep" 14>>
+* <<link "睡15个小时">><<addTime "sleep" 15>><</link>><<addTime "eSleep" 15>>
+@@color:red;font-size:0.8em;//你不能睡超过15小时！那样太不健康了。//@@\
+<</linkreplace>>
+
+* <<link "睡到自然醒">><<addTime "sleep" _need>><</link>><<addTime "eSleep">>
+
+<!-- ============================================== -->
+<!-- Wake -->
+
