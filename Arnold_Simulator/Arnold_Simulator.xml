@@ -94,6 +94,8 @@
     <<set $currentPage to "">>
     /* 用来把上一个passage的值传递给下一个passage的变量 */
     <<set $lastPassage to "">>
+    /* 用来检查是否在intro的变量 */
+    <<set $intro to true>>
 
     /* x32小图标快速插入初始化*/
     <<set $icon = {
@@ -209,11 +211,13 @@
 <!-- PassageHeader -->
 <!-- 这里nobr不管用的 -->
 <PassageHeader>
+    /* 先检查属性 */\
+    <<statCalc>>
 
-    /* 首先检测健康是不是低于0，是的话会死掉 */\
+    /* 检测健康是不是低于0，是的话会死掉 */\
     <<if $arnold.health <= 0>>
         <<goto "BE-Death">>
-    /* 最后检测健康是不是过低，过低的话有概率昏倒 */\
+    /* 检测健康是不是过低，过低的话有概率昏倒 */\
     <<elseif $arnold.health <= 30>>
         <<if random(1, 100) <= 10>>
             <<goto "Faint">>
@@ -350,6 +354,16 @@
                 <<if _args[1] >= 10>>
                     <<set $lastPassage to "tooMuchSleep" + (_args[1] - 10)>>
                 <</if>>
+            /* 特殊项 昏倒 */
+            <<case "faint">>
+                <<set $arnold.fatigue = 0>>
+                <<set $arnold.stress = 0>>
+            /* 特殊项 重置*/
+            <<case "reset">>
+                <<set $arnold.fatigue = 0>>
+                <<set $arnold.stress = 0>>
+                <<set $arnold.control = 1000>>
+                <<set $arnold.health = 100>>
         <</switch>>
     <</widget>>
 <</nobr>>
@@ -364,16 +378,16 @@
 <!-- statBar -->
 <<nobr>>
     <<widget "statBar">>
-        <<if $arnold.fatigue is 0>>
+        <<if $arnold.fatigue <= 10>>
             <<set _fatigue to "你感觉体力充沛">>
             <<set _fcolor to "forestgreen">>
-        <<elseif $arnold.fatigue <= 100>>
+        <<elseif $arnold.fatigue <= 200>>
             <<set _fatigue to "你并不觉得累">>
             <<set _fcolor to "greenyellow">>
-        <<elseif $arnold.fatigue <= 300>>
+        <<elseif $arnold.fatigue <= 400>>
             <<set _fatigue to "你感觉有些疲劳">>
             <<set _fcolor to "sandybrown">>
-        <<elseif $arnold.fatigue <= 500>>
+        <<elseif $arnold.fatigue <= 600>>
             <<set _fatigue to "你有些疲惫">>
             <<set _fcolor to "salmon">>
         <<elseif $arnold.fatigue <= 800>>
@@ -383,13 +397,13 @@
             <<set _fatigue to "你已经精疲力尽">>
             <<set _fcolor to "red">>
         <</if>>
-        <<if $arnold.stress is 0>>
+        <<if $arnold.stress <= 10>>
             <<set _stress to "你十分平静">>
             <<set _scolor to "forestgreen">>
-        <<elseif $arnold.stress <= 100>>
+        <<elseif $arnold.stress <= 150>>
             <<set _stress to "你仍然能保持冷静">>
             <<set _scolor to "greenyellow">>
-        <<elseif $arnold.stress <= 300>> 
+        <<elseif $arnold.stress <= 250>> 
             <<set _stress to "你有些焦虑">>
             <<set _scolor to "sandybrown">>
         <<elseif $arnold.stress <= 500>>
@@ -402,7 +416,7 @@
             <<set _stress to "你已经完全崩溃">>
             <<set _scolor to "red">>
         <</if>>
-        <<if $arnold.control >= 1000>>
+        <<if $arnold.control >= 990>>
             <<set _control to "你充满自信">>
             <<set _ccolor to "forestgreen">>
         <<elseif $arnold.control >= 800>>
@@ -418,7 +432,7 @@
             <<set _control to "你完全失去自控">>
             <<set _ccolor to "red">>
         <</if>>
-        <<if $arnold.health >= 100>>
+        <<if $arnold.health >= 95>>
             <<set _health to "你的身体十分健康">>
             <<set _hcolor to "forestgreen">>
         <<elseif $arnold.health >= 80>>
@@ -454,23 +468,11 @@
 <!-- refreshSidebar -->
 <<nobr>>
     <<widget "refreshSidebar">>
-    /* 首先检查有没有任何数值低于或高于初始数值，有的话重置 */
-    <<if $arnold.fatigue < 0>>
-        <<set $arnold.fatigue to 0>>
-    <</if>>
-    <<if $arnold.stress < 0>>
-        <<set $arnold.stress to 0>>
-    <</if>>
-    <<if $arnold.control > 1000>>
-        <<set $arnold.control to 1000>>
-    <</if>>
-    <<if $arnold.health > 100>>
-        <<set $arnold.health to 100>>
-    <</if>>
-    /* 然后刷新边栏 */
-    <<replace "#story-caption">>
-        <<include "StoryCaption">>
-    <</replace>>
+        <<statCalc>>
+        /* 刷新边栏 */
+        <<replace "#story-caption">>
+            <<include "StoryCaption">>
+        <</replace>>
     <</widget>>
 <</nobr>>    
 
@@ -681,6 +683,24 @@
     <</widget>>
 <</nobr>>
 
+<!-- statCalc -->
+<<nobr>>
+    <<widget "statCalc">>
+        /* 首先检查有没有任何数值低于或高于初始数值，有的话重置 */
+        <<if $arnold.fatigue < 0>>
+            <<set $arnold.fatigue to 0>>
+        <</if>>
+        <<if $arnold.stress < 0>>
+            <<set $arnold.stress to 0>>
+        <</if>>
+        <<if $arnold.control > 1000>>
+            <<set $arnold.control to 1000>>
+        <</if>>
+        <<if $arnold.health > 100>>
+            <<set $arnold.health to 100>>
+        <</if>>
+    <</widget>>
+<</nobr>>
 
 <!-- ============================================== -->
 <!-- tag: pages
@@ -826,30 +846,34 @@ example usage:
     <</if>>
     <<if _fatigue and _stress and _health>>
         <<set _print to "你的身体已经达到极限，疲劳、压力和虚弱感交织在一起，让你再也无法支撑。眼前的世界变得模糊，意识渐渐远去，你无力地倒在地上，陷入深深的昏迷。">>
+        <<set $lastPassage to "faintFSH">>
     <<elseif _fatigue and _stress>>
         <<set _print to "持续的疲劳与沉重的压力压得你喘不过气来。你的身体摇摇欲坠，意识开始飘忽，最终双腿一软，眼前一黑，彻底昏了过去。">>
+        <<set $lastPassage to "faintFS">>
     <<elseif _fatigue and _health>>
         <<set _print to "过度的疲劳让你的四肢沉重，而虚弱的身体再也无法支撑。你感到一阵眩晕，步伐踉跄，紧接着便失去了意识，重重倒下。">>
+        <<set $lastPassage to "faintFH">>
     <<elseif _stress and _health>>
         <<set _print to "压力如同一座无形的大山，让你的内心濒临崩溃，而身体的虚弱更让你无法支撑。你感到心跳加速，胸口发闷，最后在极度的不适中昏倒过去。">>
+        <<set $lastPassage to "faintSH">>
     <<elseif _fatigue>>
         <<set _print to "长时间的疲惫让你的身体彻底透支，沉重的眼皮再也抬不起来。你踉跄几步，最终倒在地上，陷入深深的昏迷。">>
+        <<set $lastPassage to "faintF">>
     <<elseif _stress>>
         <<set _print to "焦虑和压力不断积聚，如同无形的枷锁束缚着你的精神。你的大脑一片混沌，意识逐渐模糊，最终在崩溃的边缘失去了知觉。">>
+        <<set $lastPassage to "faintS">>
     <<elseif _health>>
         <<set _print to "你的身体太过羸弱，此时连站立都变得困难。你试图深呼吸，却感到一阵头晕目眩，眼前一黑，便失去了所有知觉。">>
+        <<set $lastPassage to "faintH">>
     <</if>>
 <</nobr>>\
-@@#faint;\
 // _print //
 
 
-<<link "醒来 (3:00)">>
-        <<replace "#faint" t8n>>
-            你醒了过来。
-        <</replace>>
-<</link>>
-@@
+<<link "醒来">>
+        <<sleepCalc "sleep">><<goto "Wake">>
+<</link>><<sleepCalc "eSleep">>
+
 
 <!-- ============================================== -->
 <!-- Sleep -->
@@ -885,33 +909,100 @@ example usage:
 <!-- ============================================== -->
 <!-- Wake -->
 <<nobr>>
-    <<switch $lastPassage>>
-        <<case "">>
-            <<set _print to "">>
-        <<case "tooMuchSleep1">>
-            <<addStat "fatigue" 20>>
-            <<addStat "stress" 20>>
-            <<addStat "health" -1>>
-        <<case "tooMuchSleep2">>
-            <<addStat "fatigue" 40>>
-            <<addStat "stress" 40>>
-            <<addStat "health" -2>>
-        <<case "tooMuchSleep3">>
-            <<addStat "fatigue" 60>>
-            <<addStat "stress" 60>>
-            <<addStat "health" -3>>
-        <<case "tooMuchSleep4">>
-            <<addStat "fatigue" 80>>
-            <<addStat "stress" 80>>
-            <<addStat "health" -4>>
-        <<case "tooMuchSleep5">>
-            <<addStat "fatigue" 100>>
-            <<addStat "stress" 100>>
-            <<addStat "health" -5>>
+    /* 筛选不同的跳转来源 */
+    <<if $lastPassage.startsWith("tooMuchSleep")>>
+        <<set _link to "起床">>
+        <<set _goto to "IntroBedroom">>
+        <<set _arg to $lastPassage.slice(12)>>
+        <<switch _arg>>
+            <<case "1">>
+                <<addStat "fatigue" 20>>
+                <<addStat "stress" 20>>
+                <<addStat "health" -1>>
+                <<set _print to "你醒了过来。你睡得很香，感觉身体轻松了不少，但似乎睡得有点久了，脑子有些迷糊。">>
+            <<case "2">>
+                <<addStat "fatigue" 40>>
+                <<addStat "stress" 40>>
+                <<addStat "health" -2>>
+                <<set _print to "你醒了过来。虽然疲惫感有所减轻，但你睡得有点太久了，身体有些僵硬。">>
+            <<case "3">>
+                <<addStat "fatigue" 60>>
+                <<addStat "stress" 60>>
+                <<addStat "health" -3>>
+                <<set _print to "你花了一些时间才完全清醒。虽然睡眠让你恢复了不少，但显然睡得有点太久了，整个人还有些昏昏沉沉。">>
+            <<case "4">>
+                <<addStat "fatigue" 80>>
+                <<addStat "stress" 80>>
+                <<addStat "health" -4>>
+                <<set _print to "你醒了过来，感觉身体有些沉重。长时间的睡眠似乎带来了副作用。">>
+            <<case "5">>
+                <<addStat "fatigue" 100>>
+                <<addStat "stress" 100>>
+                <<addStat "health" -5>>
+                <<set _print to "你艰难地爬起来，脑袋发涨，全身僵硬，长时间的沉眠让你感到虚弱和不适。">>
         <</switch>>
+    <<elseif $lastPassage.startsWith("faint")>>
+        <<set _link to "看看四周">>
+        <<set _goto to "IntroBedroom">>
+        <<set _arg to $lastPassage.slice(5)>>
+        <<addStat "faint">>
+        <<switch _arg>>
+            <<case "FSH">>
+                <<set $arnold.fatigue to 500>>
+                <<set $arnold.stress to 500>>
+                <<set $arnold.health to 35>>
+                <<addStat "control" -300>>
+                <<set _print to "你分不清过了多久，意识像生锈的齿轮艰难转动，分不清是身体更沉重还是思维更混沌。这次击溃你的是系统性的全面崩溃，昏迷前最后的记忆碎片还在刺痛神经，这种强制关机让情况更糟。你的健康状态显然难以承受。">>
+            <<case "FS">>
+                <<set $arnold.fatigue to 300>>
+                <<set $arnold.stress to 300>>
+                <<addStat "control" -200>>
+                <<addStat "health" -20>>
+                <<set _print to >>
+                <<set _print to "你挣扎着恢复清醒，眼皮仿佛被砂纸摩擦般灼痛。耳鸣与太阳穴的抽痛交织成网，连呼吸都像在搬运石块。过度透支的躯体与紧绷的神经相互撕扯，连维持基本思考都成为酷刑。">>
+            <<case "FH">>
+                <<set $arnold.fatigue to 300>>
+                <<set $arnold.health to 35>>
+                <<addStat "stress" 200>>
+                <<addStat "control" -200>>
+                <<set _print to "你勉强醒了过来，关节如同被铁锈蚀死般僵硬。胸腔里紊乱的心跳声震耳欲聋。这具躯壳正在用疼痛向你发出警报。">>
+            <<case "SH">>
+                <<set $arnold.health to 35>>
+                <<set $arnold.stress to 300>>
+                <<addStat "fatigue" 200>>
+                <<addStat "control" -200>>
+                <<set _print to "你苏醒时仿佛被困在生锈的机械躯壳里，每个细胞都在抗议。你的心脏像被钉在胸膛里，每次跳动都在提醒你这具躯体的脆弱。">>
+            <<case "F">>
+                <<set $arnold.fatigue to 100>>
+                <<addStat "stress" 100>>
+                <<addStat "health" -5>>
+                <<addStat "control" -100>>
+                <<set _print to "你逐渐恢复了意识，肌肉像灌了铅。过度疲劳的后遗症让每个细胞都在抗议。">>
+            <<case "S">>
+                <<set $arnold.stress to 100>>
+                <<addStat "fatigue" 100>>
+                <<addStat "health" -5>>
+                <<addStat "control" -100>>
+                <<set _print to "你慢慢清醒过来，睁开眼时冷汗还黏在背上。你心中的焦虑仍然挥之不去。你感到全身无力，无法集中精神。">>
+            <<case "H">>
+                <<set $arnold.health to 35>>
+                <<addStat "fatigue" 100>>
+                <<addStat "stress" 100>>
+                <<addStat "control" -100>>
+                <<set _print to "你慢慢清醒过来，感觉头晕目眩，全身无力。你的身体状况依然很糟糕，喉咙里泛着铁锈味。身体在警告你已逼近承受极限。">>
+        <</switch>>
+    <<else>>
+        <<set _print to "你醒了过来。">>
+        <<set _link to "起床">>
+        <<if $intro>>
+            <<set _goto to "IntroBedroom">>
+        <<else>>
+            <<set _goto to "Bedroom">>
+        <</if>>
+    <</if>>
 <</nobr>>\
-你醒了过来。<<print _print>>
+<<print _print>>
 
 
-<<link "起床">><<goto "IntroBedroom">><</link>>
+<<link _link>><<goto _goto>><</link>>
 
