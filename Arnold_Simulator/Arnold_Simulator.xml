@@ -15,9 +15,9 @@
         fatigue: 0,
         stress: 0,
         control: 1000,
-        social: {},
-        inventory: {},
-        journal: {},
+        social: [],
+        inventory: [],
+        journal: [],
     }>>
 
     /* 提芙利初始化 */
@@ -27,8 +27,8 @@
         relation: 0,
         suspicion: 0,
         dominance: 0,
-        social: {},
-        inventory: {},
+        social: [],
+        inventory: [],
     }>>
 
     /* 社交初始化 */
@@ -212,8 +212,7 @@
 <!-- 这里nobr不管用的 -->
 <PassageHeader>
     /* 先检查属性 */\
-    <<statCalc>>
-
+    <<statCalc>>\
     /* 检测健康是不是低于0，是的话会死掉 */\
     <<if $arnold.health <= 0>>
         <<goto "BE-Death">>
@@ -227,7 +226,6 @@
             <<set $arnold.stress += 50>>
         <</if>>
     <</if>>\
-
     /* 然后检测疲劳和压力有没有满，满了就昏倒 */\
     <<if $arnold.fatigue >= 1000 or $arnold.stress >= 1000>>
         <<goto "Faint">>
@@ -521,6 +519,13 @@
                 <<run $("#page-content a:contains('保存')").css('pointer-events', 'auto').css('color', '');>>    
             <</if>>
         <</if>>
+        <<if $("#page-tabs").children().length>>
+            /* 给tab添加默认选中 */
+            <<script>>
+                let tab = document.querySelector("#page-tabs li:first-child a");
+                tab.classList.add("active-tab");
+            <</script>>
+        <</if>>
     <</widget>> 
 <</nobr>>
 
@@ -795,13 +800,27 @@ example usage:
     </div>
 </div>
 
-<!-- stat-pages -->
+<!-- stat-page -->
 <div id="page-content">
     <ul id="page-tabs" style="display:none;">
 
     </ul>
     <div id="content-stats" class="page-content">
-    
+        
+    </div>
+    <div class="page-bottom">
+    </div>
+</div>
+
+<!-- inventory-page -->
+<div id="page-content">
+    <ul id="page-tabs">
+        <li class="inventory"><<link "道具">><</link>></li>
+        <li class="inventory"><<link "任务物品">><</link>></li>
+        <li class="inventory"><<link "收藏品">><</link>></li>
+    </ul>
+    <div id="content-inventory" class="page-content">
+        
     </div>
     <div class="page-bottom">
     </div>
@@ -1004,5 +1023,5 @@ example usage:
 <<print _print>>
 
 
-<<link _link>><<goto _goto>><</link>>
+<<link _link>><<goto _goto>><<autosave>><</link>>
 

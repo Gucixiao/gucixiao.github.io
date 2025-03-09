@@ -214,12 +214,6 @@
     border: 1px solid #555;
     border-top: none;
 }
-/* page content list */
-#page-content ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0.5em 0;
-}
 /* page content buttons */
 #page-content ul a {
     text-align: center;
@@ -247,6 +241,11 @@
     display: flex;
 }
 /* saves-page css */
+#saves-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0.5em 0;
+}
 .save {
     display: flex;
     padding: 0.5em;
@@ -274,11 +273,39 @@
     flex-shrink: 0;
 }
 
+/* inventory-page css */
+#content-inventory {
+    background-color: #333;
+    height: calc(100% - 2.5em);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 /* tabs */
 #page-tabs {
-    height: 1.5em;
-    padding: 0.5em;
+    padding: 0;
+    margin: 0;
     border-bottom: 1px solid #555;
+    letter-spacing: -5px;
+}
+#page-tabs li {
+    display: inline-block;
+    letter-spacing: normal;
+}
+#page-tabs li a {
+    display: inline-block;
+    margin: 0;
+    width: 10em;
+}
+#page-tabs li a.active-tab {
+    background-color: #333;
+    border: 1px solid #555;
+    border-bottom: 1px solid #222;
+    color: #fff;
+}
+#page-tabs li a:hover {
+    background-color: #333;
+    border: 1px solid #555;
 }
 
 /* options of a listbox */ 

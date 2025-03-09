@@ -34,7 +34,6 @@ Macro.add("autosave", {
     }
 });
 
-
 // 设置存档的描述显示是passage的前50个字符
 Config.saves.descriptions = function (saveType) {
     return Story.get(passage()).processText().slice(0, 50) + "...";
@@ -52,9 +51,15 @@ $("#ui-dialog-body").click(function (e) {
     e.stopPropagation();
 });
 
+//给所有的page-tabs添加点击事件
+$(document).on("click", "#page-tabs .inventory a", function () {
+    $("#page-tabs .inventory a").removeClass("active-tab"); // 先移除所有 a 的 active-tab
+    $(this).addClass("active-tab"); // 只给当前点击的 a 添加
+});
+
 // 因为会导致点击链接跳转到新passage的时候，会因为新passage自带一次刷新而导致refresh了两次，所以这里禁用
 // 需要的话可以在passage里面手动调用<<refreshSidebar>>来刷新sidebar
-// //点击任何位于.passage的链接都将触发<<refreshSidbar>> widget
+// //点击任何位于.passage的链接都将触发<<refreshSidebar>> widget
 // $(document).click(function (e) {
 //     if (!$(e.target).closest("#ui-bar").length && $(e.target).is("a")) {
 //         $.wiki('<<refreshSidebar>>')
