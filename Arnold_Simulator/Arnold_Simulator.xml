@@ -16,7 +16,14 @@
         stress: 0,
         control: 1000,
         social: [],
-        inventory: [],
+        inventory: [
+            {name:'任务笔记', count: '1'},
+            {name:'任务笔记2', count: '2'},
+            {name:'任务笔记3', count: '3'},
+            {name:'任务笔记4', count: '4'},
+            {name:'任务笔记5', count: '5'},
+            {name:'任务笔记6', count: '6'},
+        ],
         journal: [],
     }>>
 
@@ -820,7 +827,14 @@ example usage:
         <li class="inventory"><<link "收藏品">><</link>></li>
     </ul>
     <div id="content-inventory" class="page-content">
-        
+        <ul class="item">
+        <li>
+            <div class="item-name">测试物品</div>
+            <div class="item-desc">物品描述abcasdfjhawliefbhalsdkjvbaskdfjbhawelifhu</div>
+            <div class="item-count">数量：1</div>
+            <<button "使用">><</button>><<button "丢弃">><</button>>
+        </li>
+        </ul>
     </div>
     <div class="page-bottom">
     </div>

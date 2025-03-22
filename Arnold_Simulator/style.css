@@ -3,6 +3,13 @@
         display: none !important;
 }
 
+/* make all ul does not have dot or padding */
+.passage ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0.5em 0;
+}
+
 /* banner img align center and lock width*/
 .passage .banner {
     text-align: center;
@@ -240,12 +247,8 @@
     padding: 0.5em;
     display: flex;
 }
+
 /* saves-page css */
-#saves-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 0.5em 0;
-}
 .save {
     display: flex;
     padding: 0.5em;
@@ -279,6 +282,13 @@
     height: calc(100% - 2.5em);
     overflow-y: auto;
     overflow-x: hidden;
+}
+#content-inventory ul {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
 }
 
 /* tabs */
